@@ -12,7 +12,8 @@ using System.Text;
 
 namespace TransportesCRLib
 {
-    class Conductor
+    [Serializable]
+    public class Conductor
     {
         /// <summary> 3
         /// Clase base para registro para tipos de empleados

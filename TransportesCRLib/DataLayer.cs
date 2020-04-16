@@ -14,7 +14,7 @@ using System.Text;
 
 namespace TransportesCRLib
 {
-    class DataLayer
+    public class DataLayer
     {
         #region "Definicion de variables"
         public static SqlConnection sqlConnData = new SqlConnection(); //connector a la base de datos

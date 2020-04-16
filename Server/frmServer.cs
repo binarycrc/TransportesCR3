@@ -16,15 +16,18 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using TransportesCRLib;
 
 namespace Server
 {
-    public partial class Server : Form
+    public partial class frmServer : Form
     {
         TcpListener tcplistener;
         Thread processClientListener;
         bool serverStarted;
-        public Server()
+        DataLayer dataLayer;
+       
+        public frmServer()
         {
             InitializeComponent();
             lblServerStatus.ForeColor = Color.Red;
@@ -49,6 +52,7 @@ namespace Server
         private void btnServerStop_Click(object sender, EventArgs e)
         {
             serverStarted = false;
+            tcplistener.Stop();
             lblServerStatus.Text = "Servidor detenido";
             lblServerStatus.ForeColor = Color.Red;
             btnServerStart.Enabled = true;

@@ -12,7 +12,8 @@ using System.Text;
 
 namespace TransportesCRLib
 {
-    class Camion
+    [Serializable]
+    public class Camion
     {
         /// <summary>
         /// Clase para el tipo de Camion
