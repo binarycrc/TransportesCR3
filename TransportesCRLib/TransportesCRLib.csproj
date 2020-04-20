@@ -43,7 +43,8 @@
     <Compile Include="Camion.cs" />
     <Compile Include="Conductor.cs" />
     <Compile Include="ConductorxCamion.cs" />
-    <Compile Include="ConnTcp.cs" />
+    <Compile Include="TcpConnClient.cs" />
+    <Compile Include="TcpConnServer.cs" />
     <Compile Include="DataLayer.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="Package.cs" />

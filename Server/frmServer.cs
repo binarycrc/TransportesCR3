@@ -5,11 +5,13 @@
  * 
 *********************************************************************/
 
+using Cliente;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -22,80 +24,246 @@ namespace Server
 {
     public partial class frmServer : Form
     {
-        TcpListener tcplistener;
-        Thread processClientListener;
+        public delegate void ClientCarrier(TcpConnServer tcpConnServer);
+        public event ClientCarrier OnClientConnected;
+        public event ClientCarrier OnClientDisconnected;
+        public delegate void DataRecieved(TcpConnServer tcpConnServer, string data);
+        public event DataRecieved OnDataRecieved;
+
+        private TcpListener _tcpListener;
+        private Thread _acceptThread;
+        private List<TcpConnServer> connectedClients = new List<TcpConnServer>();
+
         bool serverStarted;
-        DataLayer dataLayer;
-       
         public frmServer()
         {
             InitializeComponent();
-            lblServerStatus.ForeColor = Color.Red;
-            btnServerStop.Enabled = false;
         }
-
-        private void btnServerStart_Click(object sender, EventArgs e)
+        private void frmServer_Load(object sender, EventArgs e)
         {
-            IPAddress localIPAddress = IPAddress.Parse("127.0.0.1");
-            tcplistener = new TcpListener(localIPAddress, 30000);
-            processClientListener = new Thread(new ThreadStart(ClientListener) );
-            processClientListener.Start();
-            processClientListener.IsBackground = true;
+            //OnDataRecieved += msgReceived;
+            //OnClientConnected += connReceived;
+            //OnClientDisconnected += connClosed;
 
-            serverStarted = true;
-            lblServerStatus.Text = "Escuchando clientes en: " + localIPAddress.ToString();
-            lblServerStatus.ForeColor = Color.Green;
-            btnServerStart.Enabled = false;
-            btnServerStop.Enabled = true;
-
+            //listenClients("127.0.0.1", 1982);
         }
-        private void btnServerStop_Click(object sender, EventArgs e)
+        private void frmServer_FormClosing(object sender, FormClosingEventArgs e)
         {
-            serverStarted = false;
-            tcplistener.Stop();
-            lblServerStatus.Text = "Servidor detenido";
-            lblServerStatus.ForeColor = Color.Red;
-            btnServerStart.Enabled = true;
-            btnServerStop.Enabled = false;
+            Environment.Exit(0);
         }
-        private void ClientListener()
+        public void serverConnect() 
         {
-            tcplistener.Start();
-            while (serverStarted)
+            try
             {
-                TcpClient client = tcplistener.AcceptTcpClient();
-                Thread clientThread = new Thread(new ParameterizedThreadStart(clientComunication));
-                clientThread.Start(client);
-
+                OnDataRecieved += msgReceived;
+                OnClientConnected += connReceived;
+                OnClientDisconnected += connClosed;
+                listenClients("127.0.0.1", 1982);
             }
-            //throw new NotImplementedException();
-        }
-
-        private void clientComunication(object obj)
-        {
-            TcpClient tcpClient = (TcpClient)obj;
-            NetworkStream clientStream = tcpClient.GetStream();
-            ASCIIEncoding encoder = new ASCIIEncoding();
-            byte[] buffer = new byte[4096];
-            int byteReaded;
-
-            while (serverStarted)
+            catch (Exception e)
             {
-                byteReaded = 0;
+                MessageBox.Show(e.Message.ToString());
+            }
+            
+        }
+        public void serverDisconnect()
+        {
+            try
+            {
+                //_acceptThread = null;
+                //_tcpListener.EndAcceptTcpClient();
+                _tcpListener.Stop();
+                //OnDataRecieved += null;
+                //OnClientConnected += null;
+                //OnClientDisconnected += null;
+                
+            }
+            catch (SocketException socketEx)
+            {
+                MessageBox.Show(socketEx.Message.ToString());
+                //if (_acceptThread)
+                //    ar.SetAsCompleted(null, false); //exception because listener stopped (disposed), ignore exception
+                //else
+                //    ar.SetAsCompleted(socketEx, false);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message.ToString());
+            }
+        }
+        private void msgReceived(TcpConnServer tcpConnServer, string data)
+        {
+            var package = new Package(data);
+            string command = package.Command;
+            if (command == "login")
+            {
+                string content = package.Content;
+                List<string> values = Map.Deserialize(content);
+
+                Invoke(new Action(() => textBox1.Text = values[0]));
+                Invoke(new Action(() => textBox2.Text = values[1]));
+
+                var msgPack = new Package("resultado", "OK");
+                tcpConnServer.SendPackage(msgPack);
+            }
+            if (command == "insertar")
+            {
+                string content = package.Content;
+                List<string> values = Map.Deserialize(content);
+                //usuariosTableAdapter.Insert(values[0], values[1]);
+                var msgPack = new Package("resultado", "Registros en SQL: OK");
+                tcpConnServer.SendPackage(msgPack);
+            }
+        }
+        private void connReceived(TcpConnServer tcpConnServer)
+        {
+            lock (connectedClients)
+                if (!connectedClients.Contains(tcpConnServer))
+                    connectedClients.Add(tcpConnServer);
+            Invoke(new Action(() => label1.Text = string.Format("Clientes: {0}", connectedClients.Count)));
+        }
+        private void connClosed(TcpConnServer tcpConnServer)
+        {
+            lock (connectedClients)
+                if (connectedClients.Contains(tcpConnServer))
+                {
+                    int cliIndex = connectedClients.IndexOf(tcpConnServer);
+                    connectedClients.RemoveAt(cliIndex);
+                }
+            Invoke(new Action(() => label1.Text = string.Format("Clientes: {0}", connectedClients.Count)));
+        }
+        private void listenClients(string ipAddress, int port)
+        {
+            try
+            {
+                _tcpListener = new TcpListener(IPAddress.Parse(ipAddress), port);
+                _tcpListener.Start();
+                _acceptThread = new Thread(acceptClients);
+                _acceptThread.Start();
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message.ToString());
+            }
+        }
+        private void acceptClients()
+        {
+            do
+            {
                 try
                 {
-                    byteReaded = clientStream.Read(buffer, 0, buffer.Length);
+                    var tt = _tcpListener.Pending();
+
+                    //while (!_tcpListener.Pending())
+                    //{
+                    //    Thread.Sleep(1000);
+                    //}
+
+                    var conn = _tcpListener.AcceptTcpClient();
+                    var srvClient = new TcpConnServer(conn){ReadThread = new Thread(readData)};
+                    srvClient.ReadThread.Start(srvClient);
+
+                    if (OnClientConnected != null) { OnClientConnected(srvClient); }
                 }
-                catch (Exception)
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.Message.ToString());
+                }
+
+            } while (true);
+        }
+        private void readData(object client)
+        {
+            var cli = client as TcpConnServer;
+            var charBuffer = new List<int>();
+
+            do
+            {
+                try
+                {
+                    if (cli == null) { break; }
+                    if (cli.StreamReader.EndOfStream) { break; }
+
+                    int charCode = cli.StreamReader.Read();
+                    if (charCode == -1) { break; }
+
+                    if (charCode != 0)
+                    {
+                        charBuffer.Add(charCode);
+                        continue;
+                    }
+                    if (OnDataRecieved != null)
+                    {
+                        var chars = new char[charBuffer.Count];
+                        //Convert all the character codes to their representable characters
+                        for (int i = 0; i < charBuffer.Count; i++)
+                        {
+                            chars[i] = Convert.ToChar(charBuffer[i]);
+                        }
+                        //Convert the character array to a string
+                        var message = new string(chars);
+
+                        //Invoke our event
+                        OnDataRecieved(cli, message);
+                    }
+                    charBuffer.Clear();
+                }
+                catch (IOException)
                 {
                     break;
                 }
-                if (byteReaded == 0) { break; }
-                string message = encoder.GetString(buffer, 0, buffer.Length);
-                MessageBox.Show(string.Format("El cliente {0} se ha conectado", message),"Cliente conectado",MessageBoxButtons.OK,MessageBoxIcon.Information);
-            }
-            tcpClient.Close();
-            //throw new NotImplementedException();
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.Message.ToString());
+                    break;
+                }
+            } while (true);
+
+            if (OnClientDisconnected != null) { OnClientDisconnected(cli); }
         }
+
+        private void menuServerStart_Click(object sender, EventArgs e)
+        {
+            if (serverStarted) { lblStripStatus.Text = "Servidor conectado!"; }
+            else
+            {
+                serverConnect();
+                lblStripStatus.Text = "Servidor conectado";
+                serverStarted = true;
+                menuServerStart.Enabled = false;
+                menuServerStop.Enabled = true;
+            }
+        }
+
+        private void menuServerStop_Click(object sender, EventArgs e)
+        {
+            if (!serverStarted) { lblStripStatus.Text = "Servidor Desconectado!"; }
+            else
+            {
+                serverDisconnect();
+                lblStripStatus.Text = "Servidor Desconectado";
+                serverStarted = false;
+                menuServerStart.Enabled = true;
+                menuServerStop.Enabled = false;
+            }
+        }
+
+        private void menuNewClient_Click(object sender, EventArgs e)
+        {
+            if (!serverStarted) { MessageBox.Show("Primero debe iniciar el servidor."); }
+            else
+            {
+                frmClient client = new frmClient();
+                client.Show();
+            }
+        }
+
+        private void menuExit_Click(object sender, EventArgs e)
+        {
+            Environment.Exit(0);
+            Application.Exit();
+        }
+
+       
     }
 }

@@ -1,4 +1,11 @@
-﻿using System;
+﻿/*********************************************************************
+ * Copyright 2020 Pablo Ugalde
+ * Universidad Estatal A Distancia
+ * PRIMER CUATRI-2020 00830 PROGRAMACION AVANZADA
+ * 
+*********************************************************************/
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,34 +16,30 @@ namespace TransportesCRLib
     public class Package
     {
         public string Command { get; set; }
-        public string Conten { get; set; }
+        public string Content { get; set; }
+        public Package(){}
 
-        public Package()
+        public Package(string comand, string content)
         {
-
+            Command = comand;
+            Content = content;
         }
 
-        public Package(string comando, string contenido)
+        public Package(string data) // ej: login:usuario,contrasena
         {
-            Command = comando;
-            Conten = contenido;
+            int sepIndex = data.IndexOf(":", StringComparison.Ordinal);
+            Command = data.Substring(0, sepIndex);
+            Content = data.Substring(Command.Length + 1);
         }
 
-        public Package(string datos) // ej: login:usuario,contrasena
+        public string Serialize()
         {
-            int sepIndex = datos.IndexOf(":", StringComparison.Ordinal);
-            Command = datos.Substring(0, sepIndex);
-            Conten = datos.Substring(Command.Length + 1);
-        }
-
-        public string Serializar()
-        {
-            return string.Format("{0}:{1}", Command, Conten);
+            return string.Format("{0}:{1}", Command, Content);
         }
 
         public static implicit operator string(Package package)
         {
-            return package.Serializar();
+            return package.Serialize();
         }
     }
 }

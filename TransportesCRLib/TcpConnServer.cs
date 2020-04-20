@@ -1,4 +1,11 @@
-﻿using System;
+﻿/*********************************************************************
+ * Copyright 2020 Pablo Ugalde
+ * Universidad Estatal A Distancia
+ * PRIMER CUATRI-2020 00830 PROGRAMACION AVANZADA
+ * 
+*********************************************************************/
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,7 +15,7 @@ using System.Threading;
 
 namespace TransportesCRLib
 {
-    public class ConnTcp
+    public class TcpConnServer
     {
         public TcpClient TcpClient;
         public StreamReader StreamReader;
@@ -24,7 +31,7 @@ namespace TransportesCRLib
         public delegate void ErrorCarrier(Exception e);
         public event ErrorCarrier OnError;
 
-        public ConnTcp(TcpClient client)
+        public TcpConnServer(TcpClient client)
         {
             var ns = client.GetStream();
             StreamReader = new StreamReader(ns);
@@ -40,8 +47,7 @@ namespace TransportesCRLib
             }
             catch (Exception e)
             {
-                if (OnError != null)
-                    OnError(e);
+                if (OnError != null) { OnError(e); }                    
             }
         }
         public void SendPackage(Package package)

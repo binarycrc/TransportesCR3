@@ -1,4 +1,4 @@
-﻿namespace Main
+﻿namespace ServerTcp
 {
     partial class Form1
     {

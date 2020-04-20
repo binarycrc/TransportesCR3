@@ -74,5 +74,11 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TransportesCRLib\TransportesCRLib.csproj">
+      <Project>{645b4b8c-8b9a-4fc4-9739-6dba8391d2ab}</Project>
+      <Name>TransportesCRLib</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
