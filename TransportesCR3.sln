@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerEnzo", "Server\Server
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerTcp", "ServerTcp\ServerTcp.csproj", "{D299D5DB-BBBD-4ED2-BAEA-5B76F51FAE0E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClienteTcp", "ClienteTcp\ClienteTcp.csproj", "{FF8F460F-F9D9-4340-AEE2-14B6A2D0C8A4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{D299D5DB-BBBD-4ED2-BAEA-5B76F51FAE0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D299D5DB-BBBD-4ED2-BAEA-5B76F51FAE0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D299D5DB-BBBD-4ED2-BAEA-5B76F51FAE0E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF8F460F-F9D9-4340-AEE2-14B6A2D0C8A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF8F460F-F9D9-4340-AEE2-14B6A2D0C8A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF8F460F-F9D9-4340-AEE2-14B6A2D0C8A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF8F460F-F9D9-4340-AEE2-14B6A2D0C8A4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

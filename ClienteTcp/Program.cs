@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace ServerTcp
+namespace ClienteTcp
 {
     static class Program
     {
@@ -15,7 +15,7 @@ namespace ServerTcp
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new frmServer());
+            Application.Run(new frmCliente());
         }
     }
 }
