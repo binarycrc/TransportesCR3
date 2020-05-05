@@ -75,14 +75,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Cliente\Client.csproj">
-      <Project>{d1e0c894-0c47-4942-8611-328df52bb74c}</Project>
-      <Name>Client</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Server\Server.csproj">
-      <Project>{645f5115-be36-4c65-abdd-44513b859513}</Project>
-      <Name>Server</Name>
-    </ProjectReference>
     <ProjectReference Include="..\TransportesCRLib\TransportesCRLib.csproj">
       <Project>{645b4b8c-8b9a-4fc4-9739-6dba8391d2ab}</Project>
       <Name>TransportesCRLib</Name>

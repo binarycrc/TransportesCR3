@@ -56,6 +56,7 @@
             this.btnServerStart.TabIndex = 0;
             this.btnServerStart.Text = "Iniciar";
             this.btnServerStart.UseVisualStyleBackColor = true;
+            this.btnServerStart.Click += new System.EventHandler(this.btnServerStart_Click);
             // 
             // lblServerStatus
             // 
@@ -140,7 +141,7 @@
             // menuServerStart
             // 
             this.menuServerStart.Name = "menuServerStart";
-            this.menuServerStart.Size = new System.Drawing.Size(180, 22);
+            this.menuServerStart.Size = new System.Drawing.Size(161, 22);
             this.menuServerStart.Text = "Iniciar Servidor";
             this.menuServerStart.Click += new System.EventHandler(this.menuServerStart_Click);
             // 
@@ -148,19 +149,19 @@
             // 
             this.menuServerStop.Enabled = false;
             this.menuServerStop.Name = "menuServerStop";
-            this.menuServerStop.Size = new System.Drawing.Size(180, 22);
+            this.menuServerStop.Size = new System.Drawing.Size(161, 22);
             this.menuServerStop.Text = "Detener Servidor";
             this.menuServerStop.Click += new System.EventHandler(this.menuServerStop_Click);
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(177, 6);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(158, 6);
             // 
             // menuExit
             // 
             this.menuExit.Name = "menuExit";
-            this.menuExit.Size = new System.Drawing.Size(180, 22);
+            this.menuExit.Size = new System.Drawing.Size(161, 22);
             this.menuExit.Text = "Salir";
             this.menuExit.Click += new System.EventHandler(this.menuExit_Click);
             // 

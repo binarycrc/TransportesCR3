@@ -1,3 +1,16 @@
 ﻿https://stackoverflow.com/questions/13944816/convert-a-class-into-an-array/13944917
 https://www.youtube.com/watch?v=F4IFFz032KY
 https://bbb2.tunalkan.net/playback/presentation/2.0/playback.html?meetingId=8352d9f964229117eaf671e487404269cf0ae334-1586998745667
+
+
+Si quiere haga la prueba así. Cualquier control sea textbox o label o cualquiera debe invocar al método Invoke cuando se quiere modificar desde un subproceso o Thread. Ej:
+Label label=new Label();
+
+label.Invoke(new MethodInvoker(delegate {
+
+label.Text = "texto desde delegado";
+
+}));
+En ese caso es un label pero si fuera textbox sería igual o cualquier otro.
+
+https://stackoverflow.com/questions/36471563/c-sharp-this-invokemethodinvokerdelegate

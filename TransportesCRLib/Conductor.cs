@@ -23,6 +23,8 @@ namespace TransportesCRLib
         string _papellido;
         string _sapellido;
         string _ruta;
+        string _username;
+        string _acceso;
         /// <summary>
         /// Constructor de la clase Empleado
         /// </summary>
@@ -31,34 +33,46 @@ namespace TransportesCRLib
         /// <param name="papellido"></param>
         /// <param name="sapellido"></param>
         /// <param name="rutaasignada"></param>
-        public Conductor(string identificacion, string nombre, string papellido, string sapellido, string rutaasignada)
+        /// <param name="username"></param>
+        /// <param name="acceso"></param>
+        public Conductor(string identificacion, string nombre, string papellido, string sapellido, string rutaasignada, string username, string acceso)
         {
-            _identificacion = identificacion;
-            _nombre = nombre;
-            _papellido = papellido;
-            _sapellido = sapellido;
-            _ruta = rutaasignada;
+            Identificacion = identificacion;
+            Nombre = nombre;
+            PApellido = papellido;
+            SApellido = sapellido;
+            Ruta = rutaasignada;
+            UserName = username;
+            Acceso = acceso;
         }
         /// <summary>
         /// Propiedad para el campo identificacon
         /// </summary>
-        public string Identificacion { get { return _identificacion; } set { _identificacion = value; } }
+        public string Identificacion { get => _identificacion; set => _identificacion = value; }
         /// <summary>
         /// Propiedad para el campo nombre
         /// </summary>
-        public string Nombre { get { return _nombre; } set { _nombre = value; } }
+        public string Nombre { get => _nombre;  set => _nombre = value;  }
 
         /// <summary>
         /// Propiedad para el cambpo primer apellido
         /// </summary>
-        public string PApellido { get { return _papellido; } set { _papellido = value; } }
+        public string PApellido { get => _papellido;  set => _papellido = value; }
         /// <summary>
         /// Propiedad para el campo segundo apellido
         /// </summary>
-        public string SApellido { get { return _sapellido; } set { _sapellido = value; } }
+        public string SApellido { get => _sapellido; set => _sapellido = value; } 
         /// <summary>
         /// Propiedad del campo ruta
         /// </summary>
-        public string Ruta { get { return _ruta; } set { _ruta = value; } }
+        public string Ruta { get => _ruta;  set => _ruta = value; } 
+        /// <summary>
+        /// Propiedad del campo user_name
+        /// </summary>
+        public string UserName { get => _username; set => _username = value; } 
+        /// <summary>
+        /// Propiedad del campo acceso
+        /// </summary>
+        public string Acceso { get => _acceso; set => _acceso = value; }
     }
 }

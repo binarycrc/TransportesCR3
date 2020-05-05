@@ -264,6 +264,9 @@ namespace Server
             Application.Exit();
         }
 
-       
+        private void btnServerStart_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
