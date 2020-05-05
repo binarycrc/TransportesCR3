@@ -389,7 +389,7 @@ namespace TransportesCRLib
             {
                 if (ConductorActivo(viaje.Identificacion) == true) //buscamos si existe el conductor
                 {
-                    retorno = "ExistenteConductor";
+                    retorno = "TieneViajeActivo";
                 }
                 else if (retorno == "")
                 {
@@ -412,28 +412,77 @@ namespace TransportesCRLib
                     commandData.Parameters.Add("@Tiempoestimado", System.Data.SqlDbType.VarChar, 50);
                     commandData.Parameters["@Tiempoestimado"].Value = viaje.Tiempoestimado.Trim();
 
-                    commandData.Parameters.Add("@UserName", System.Data.SqlDbType.VarChar, 50);
-                    commandData.Parameters["@UserName"].Value = conductor.UserName.Trim();
-                    commandData.Parameters.Add("@Acceso", System.Data.SqlDbType.VarChar, 50);
-                    commandData.Parameters["@Acceso"].Value = conductor.Acceso.Trim();
-
-                    commandData.Parameters.Add("@Placa", System.Data.SqlDbType.VarChar, 8);
-                    commandData.Parameters["@Placa"].Value = camion.Placa.Trim();
-                    commandData.Parameters.Add("@AnnoModelo", System.Data.SqlDbType.VarChar, 4);
-                    commandData.Parameters["@AnnoModelo"].Value = camion.Modelo.Trim();
-                    commandData.Parameters.Add("@Marca", System.Data.SqlDbType.VarChar, 50);
-                    commandData.Parameters["@Marca"].Value = camion.Marca.Trim();
-                    commandData.Parameters.Add("@CapacidadKG", System.Data.SqlDbType.Decimal);
-                    commandData.Parameters["@CapacidadKG"].Value = Convert.ToDecimal(camion.capacidadkilos.Trim());
-                    commandData.Parameters.Add("@CapacidadVl", System.Data.SqlDbType.Decimal);
-                    commandData.Parameters["@CapacidadVl"].Value = Convert.ToDecimal(camion.capacidadvolumen.Trim());
+                    commandData.Parameters.Add("@Identificacion", System.Data.SqlDbType.VarChar, 50);
+                    commandData.Parameters["@Identificacion"].Value = viaje.Identificacion.Trim();
+                    commandData.Parameters.Add("@Estado", System.Data.SqlDbType.VarChar, 50);
+                    commandData.Parameters["@Estado"].Value = viaje.Estado.Trim();
 
                     OpenData("query"); //abrimos la base de datos
                     commandData.ExecuteNonQuery(); //ejecutamos el query en la base de datos con todos los parametros
                     CloseData();// cerramos la coneccion a la base de datos
-                    retorno = "OKConductor";
+                    retorno = "OKViaje";
 
                 }
+            }
+            catch (Exception ex)
+            {
+                CloseData(); //cerramos la coneccion a la base de datos
+                retorno = "Error - " + ex.Message; // retornamos el valor de false si hay algun error
+            }
+            return retorno; //retornamos el valor de true si todo salio bien
+        }
+        public string RegistrarViajeActualizacion(Tracking tracking)
+        {
+            string retorno = "";
+            SqlCommand commandData = new SqlCommand();
+            try
+            {
+                //query para insertar condutor
+                string strquery = "INSERT INTO [dbo].[Tracking] " +
+                "([Id_viaje],[Ubicacion],[Observaciones]) " +
+                "VALUES(@Id_viaje, @Ubicacion, @Observaciones)";
+                commandData = new System.Data.SqlClient.SqlCommand(strquery, sqlConnData);
+                commandData.CommandType = CommandType.Text;
+                //agregamos los parametros al query con el valor requerido
+                commandData.Parameters.Add("@Id_viaje", System.Data.SqlDbType.VarChar, 10);
+                commandData.Parameters["@Id_viaje"].Value = tracking.Id_viaje.Trim();
+                commandData.Parameters.Add("@Ubicacion", System.Data.SqlDbType.VarChar, 50);
+                commandData.Parameters["@Ubicacion"].Value = tracking.Ubicacion.Trim();
+                commandData.Parameters.Add("@Observaciones", System.Data.SqlDbType.VarChar, 50);
+                commandData.Parameters["@Observaciones"].Value = tracking.Observaciones.Trim();
+
+                OpenData("query"); //abrimos la base de datos
+                commandData.ExecuteNonQuery(); //ejecutamos el query en la base de datos con todos los parametros
+                CloseData();// cerramos la coneccion a la base de datos
+                retorno = "OKViajeActualizacion";
+
+            }
+            catch (Exception ex)
+            {
+                CloseData(); //cerramos la coneccion a la base de datos
+                retorno = "Error - " + ex.Message; // retornamos el valor de false si hay algun error
+            }
+            return retorno; //retornamos el valor de true si todo salio bien
+        }
+        public string RegistrarViajeFinalizado(string Id_viaje)
+        {
+            string retorno = "";
+            SqlCommand commandData = new SqlCommand();
+            try
+            {
+                //query para insertar condutor
+                string strquery = "update viaje set Estado='FINALIZADO' where Id_viaje = @Id_viaje";
+                commandData = new System.Data.SqlClient.SqlCommand(strquery, sqlConnData);
+                commandData.CommandType = CommandType.Text;
+                //agregamos los parametros al query con el valor requerido
+                commandData.Parameters.Add("@Id_viaje", System.Data.SqlDbType.VarChar, 50);
+                commandData.Parameters["@Id_viaje"].Value = Id_viaje;
+
+                OpenData("query"); //abrimos la base de datos
+                commandData.ExecuteNonQuery(); //ejecutamos el query en la base de datos con todos los parametros
+                CloseData();// cerramos la coneccion a la base de datos
+                retorno = "OKViajeActualizacion";
+
             }
             catch (Exception ex)
             {

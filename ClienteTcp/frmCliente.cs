@@ -266,10 +266,11 @@ namespace ClienteTcp
                     escritor = new BinaryWriter(clienteStream);
                     lector = new BinaryReader(clienteStream);
                     clienteStream.Flush();
+                    string idviaje = Guid.NewGuid().ToString();
                     bf = new BinaryFormatter();
 
-                    Viaje viaje = new Viaje(Guid.NewGuid().ToString()
-                        ,txtUsuario.Text.Trim()
+                    Viaje viaje = new Viaje(idviaje
+                        , txtUsuario.Text.Trim()
                         ,txtLugarInicio.Text.Trim()
                         ,txtLugarFinal.Text.Trim()
                         ,txtDescripcionCarga.Text.Trim()
@@ -277,7 +278,9 @@ namespace ClienteTcp
                         ,"ACTIVO");
                     escritor.Write("registraviaje");
                     bf.Serialize(clienteStream, viaje);
-
+                    lblGUIDActivo.Invoke(new MethodInvoker(delegate {
+                        lblGUIDActivo.Text = idviaje;
+                    }));
                     txtStatus.Invoke(new MethodInvoker(delegate {
                         txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> registraviaje";
                         txtStatus.SelectionStart = txtStatus.Text.Length;
@@ -423,6 +426,42 @@ namespace ClienteTcp
                                 }));
                                 MessageBox.Show("El camion con la placa " + txtPlaca.Text + ", ya existe!");
                                 break;
+                            case "OKViaje":
+                                txtStatus.Invoke(new MethodInvoker(delegate {
+                                    txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->" + accion;
+                                    txtStatus.SelectionStart = txtStatus.Text.Length;
+                                    txtStatus.ScrollToCaret();
+                                }));
+                                tabIngresoViajes.Invoke(new MethodInvoker(delegate {
+                                    tabIngresoViajes.Parent = tabTrash;
+                                }));
+
+                                tabViajes.Invoke(new MethodInvoker(delegate {
+                                    tabViajes.Parent = tabMain;
+                                }));
+                                break;
+                            case "TieneViajeActivo":
+                                txtStatus.Invoke(new MethodInvoker(delegate {
+                                    txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->" + accion;
+                                    txtStatus.SelectionStart = txtStatus.Text.Length;
+                                    txtStatus.ScrollToCaret();
+                                }));
+                                MessageBox.Show("El conductor: " + txtUsuario.Text + ", ya tiene un viaje acitvo.");
+                                break;
+                            case "OKViajeActualizacion":
+                                txtStatus.Invoke(new MethodInvoker(delegate {
+                                    txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->" + accion;
+                                    txtStatus.SelectionStart = txtStatus.Text.Length;
+                                    txtStatus.ScrollToCaret();
+                                }));
+                                break;
+                            case "OKViajeFinalizado":
+                                txtStatus.Invoke(new MethodInvoker(delegate {
+                                    txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->" + accion;
+                                    txtStatus.SelectionStart = txtStatus.Text.Length;
+                                    txtStatus.ScrollToCaret();
+                                }));
+                                break;
                             default:
                                 {
                                     txtStatus.Invoke(new MethodInvoker(delegate {
@@ -487,6 +526,79 @@ namespace ClienteTcp
             txtStatus.Invoke(new MethodInvoker(delegate {
                 txtStatus.Text += "\r\n" + string.Empty;
             }));
+        }
+
+        private void btnActualizarViaje_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(txtNuevaUbicacion.Text.Trim()) || !string.IsNullOrWhiteSpace(txtNuevaUbicacion.Text.Trim()) ||
+                    !string.IsNullOrEmpty(txtObservaciones.Text.Trim()) || !string.IsNullOrWhiteSpace(txtObservaciones.Text.Trim()) 
+                    )
+                {
+                    NetworkStream clienteStream = cliente.GetStream();
+                    escritor = new BinaryWriter(clienteStream);
+                    lector = new BinaryReader(clienteStream);
+                    clienteStream.Flush();
+                    bf = new BinaryFormatter();
+                    Tracking tracking = new Tracking(lblGUIDActivo.Text
+                        , txtNuevaUbicacion.Text.Trim()
+                        , txtObservaciones.Text.Trim());
+
+                    escritor.Write("registraviajeactualizacion");
+                    bf.Serialize(clienteStream, tracking);
+
+                    txtStatus.Invoke(new MethodInvoker(delegate {
+                        txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> registraviajeactualizacion";
+                        txtStatus.SelectionStart = txtStatus.Text.Length;
+                        txtStatus.ScrollToCaret();
+                    }));
+
+
+                }
+                else
+                { lblMensaje.Text = "Verifique los datos, todos los campos son obligatorios."; }
+
+            }
+            catch (SocketException sex)
+            {
+                lblMensaje.Text = sex.Message;
+                clienteConectado = false;
+            }
+            catch (Exception ex)
+            {
+                lblMensaje.Text = ex.Message;
+            }
+        }
+
+        private void btnFinalizarViaje_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                NetworkStream clienteStream = cliente.GetStream();
+                escritor = new BinaryWriter(clienteStream);
+                lector = new BinaryReader(clienteStream);
+                clienteStream.Flush();
+                bf = new BinaryFormatter();
+                
+                escritor.Write("registraviajefinalizado");
+                bf.Serialize(clienteStream, lblGUIDActivo.Text.Trim());
+
+                txtStatus.Invoke(new MethodInvoker(delegate {
+                    txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> registraviajefinalizado";
+                    txtStatus.SelectionStart = txtStatus.Text.Length;
+                    txtStatus.ScrollToCaret();
+                }));
+            }
+            catch (SocketException sex)
+            {
+                lblMensaje.Text = sex.Message;
+                clienteConectado = false;
+            }
+            catch (Exception ex)
+            {
+                lblMensaje.Text = ex.Message;
+            }
         }
     }
 }

@@ -74,7 +74,6 @@
             this.txtNuevaUbicacion = new System.Windows.Forms.TextBox();
             this.label16 = new System.Windows.Forms.Label();
             this.btnActualizarViaje = new System.Windows.Forms.Button();
-            this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.lblMensaje = new System.Windows.Forms.Label();
             this.btnSalir = new System.Windows.Forms.Button();
             this.txtStatus = new System.Windows.Forms.TextBox();
@@ -82,6 +81,7 @@
             this.tabTrash = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.lblGUIDActivo = new System.Windows.Forms.Label();
             this.tabMain.SuspendLayout();
             this.tabIngreso.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -92,7 +92,6 @@
             this.gbIngresoViaje.SuspendLayout();
             this.tabViajes.SuspendLayout();
             this.gbViajePendiente.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.tabTrash.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -600,6 +599,7 @@
             // 
             // gbViajePendiente
             // 
+            this.gbViajePendiente.Controls.Add(this.lblGUIDActivo);
             this.gbViajePendiente.Controls.Add(this.btnFinalizarViaje);
             this.gbViajePendiente.Controls.Add(this.txtObservaciones);
             this.gbViajePendiente.Controls.Add(this.label14);
@@ -607,7 +607,6 @@
             this.gbViajePendiente.Controls.Add(this.txtNuevaUbicacion);
             this.gbViajePendiente.Controls.Add(this.label16);
             this.gbViajePendiente.Controls.Add(this.btnActualizarViaje);
-            this.gbViajePendiente.Controls.Add(this.dataGridView1);
             this.gbViajePendiente.Location = new System.Drawing.Point(6, 5);
             this.gbViajePendiente.Name = "gbViajePendiente";
             this.gbViajePendiente.Size = new System.Drawing.Size(503, 198);
@@ -622,10 +621,11 @@
             this.btnFinalizarViaje.TabIndex = 10;
             this.btnFinalizarViaje.Text = "Finalizar Viaje";
             this.btnFinalizarViaje.UseVisualStyleBackColor = true;
+            this.btnFinalizarViaje.Click += new System.EventHandler(this.btnFinalizarViaje_Click);
             // 
             // txtObservaciones
             // 
-            this.txtObservaciones.Location = new System.Drawing.Point(189, 55);
+            this.txtObservaciones.Location = new System.Drawing.Point(193, 90);
             this.txtObservaciones.Name = "txtObservaciones";
             this.txtObservaciones.Size = new System.Drawing.Size(178, 20);
             this.txtObservaciones.TabIndex = 9;
@@ -633,7 +633,7 @@
             // label14
             // 
             this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(190, 39);
+            this.label14.Location = new System.Drawing.Point(190, 72);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(78, 13);
             this.label14.TabIndex = 8;
@@ -645,13 +645,13 @@
             this.label15.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label15.Location = new System.Drawing.Point(7, 16);
             this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(127, 16);
+            this.label15.Size = new System.Drawing.Size(95, 16);
             this.label15.TabIndex = 7;
-            this.label15.Text = "Nueva Ubicación";
+            this.label15.Text = "Viaje Activo:";
             // 
             // txtNuevaUbicacion
             // 
-            this.txtNuevaUbicacion.Location = new System.Drawing.Point(6, 57);
+            this.txtNuevaUbicacion.Location = new System.Drawing.Point(6, 90);
             this.txtNuevaUbicacion.Name = "txtNuevaUbicacion";
             this.txtNuevaUbicacion.Size = new System.Drawing.Size(178, 20);
             this.txtNuevaUbicacion.TabIndex = 6;
@@ -659,7 +659,7 @@
             // label16
             // 
             this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(7, 41);
+            this.label16.Location = new System.Drawing.Point(3, 72);
             this.label16.Name = "label16";
             this.label16.Size = new System.Drawing.Size(90, 13);
             this.label16.TabIndex = 5;
@@ -673,14 +673,7 @@
             this.btnActualizarViaje.TabIndex = 4;
             this.btnActualizarViaje.Text = "Registro";
             this.btnActualizarViaje.UseVisualStyleBackColor = true;
-            // 
-            // dataGridView1
-            // 
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Location = new System.Drawing.Point(6, 83);
-            this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.Size = new System.Drawing.Size(484, 108);
-            this.dataGridView1.TabIndex = 0;
+            this.btnActualizarViaje.Click += new System.EventHandler(this.btnActualizarViaje_Click);
             // 
             // lblMensaje
             // 
@@ -726,7 +719,7 @@
             // 
             this.tabTrash.Controls.Add(this.tabPage1);
             this.tabTrash.Controls.Add(this.tabPage2);
-            this.tabTrash.Location = new System.Drawing.Point(172, 237);
+            this.tabTrash.Location = new System.Drawing.Point(0, 278);
             this.tabTrash.Name = "tabTrash";
             this.tabTrash.SelectedIndex = 0;
             this.tabTrash.Size = new System.Drawing.Size(113, 56);
@@ -752,17 +745,27 @@
             this.tabPage2.Text = "tabPage2";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
+            // lblGUIDActivo
+            // 
+            this.lblGUIDActivo.AutoSize = true;
+            this.lblGUIDActivo.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblGUIDActivo.Location = new System.Drawing.Point(7, 40);
+            this.lblGUIDActivo.Name = "lblGUIDActivo";
+            this.lblGUIDActivo.Size = new System.Drawing.Size(127, 16);
+            this.lblGUIDActivo.TabIndex = 11;
+            this.lblGUIDActivo.Text = "Nueva Ubicación";
+            // 
             // frmCliente
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(561, 444);
-            this.Controls.Add(this.tabTrash);
             this.Controls.Add(this.btnConectarCliente);
             this.Controls.Add(this.txtStatus);
             this.Controls.Add(this.btnSalir);
             this.Controls.Add(this.lblMensaje);
             this.Controls.Add(this.tabMain);
+            this.Controls.Add(this.tabTrash);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -783,7 +786,6 @@
             this.tabViajes.ResumeLayout(false);
             this.gbViajePendiente.ResumeLayout(false);
             this.gbViajePendiente.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.tabTrash.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -839,13 +841,13 @@
         private System.Windows.Forms.TextBox txtNuevaUbicacion;
         private System.Windows.Forms.Label label16;
         private System.Windows.Forms.Button btnActualizarViaje;
-        private System.Windows.Forms.DataGridView dataGridView1;
         private System.Windows.Forms.Button btnFinalizarViaje;
         private System.Windows.Forms.TextBox txtStatus;
         private System.Windows.Forms.Button btnConectarCliente;
         private System.Windows.Forms.TabControl tabTrash;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.Label lblGUIDActivo;
     }
 }
 

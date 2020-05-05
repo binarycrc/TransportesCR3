@@ -222,6 +222,26 @@ namespace ServerTcp
                             string resultadoRegistrarViaje = datalayer.RegistrarViaje(viaje);
                             escritor.Write(resultadoRegistrarViaje);
                             break;
+                        case "registraviajeactualizacion":
+                            txtStatus.Invoke(new MethodInvoker(delegate {
+                                txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->Cliente " + client.GetHashCode() + ": " + accion;
+                                txtStatus.SelectionStart = txtStatus.Text.Length;
+                                txtStatus.ScrollToCaret();
+                            }));
+                            Tracking tracking = (Tracking)(bf.Deserialize(clienteStream));
+                            string resultadoRegistrarViajeActualizacion = datalayer.RegistrarViajeActualizacion(tracking);
+                            escritor.Write(resultadoRegistrarViajeActualizacion);
+                            break;
+                        case "registraviajefinalizado":
+                            txtStatus.Invoke(new MethodInvoker(delegate {
+                                txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->Cliente " + client.GetHashCode() + ": " + accion;
+                                txtStatus.SelectionStart = txtStatus.Text.Length;
+                                txtStatus.ScrollToCaret();
+                            }));
+                            string Id_viaje = (string)(bf.Deserialize(clienteStream));
+                            string resultadoRegistrarViajeFinalizado = datalayer.RegistrarViajeFinalizado(Id_viaje);
+                            escritor.Write(resultadoRegistrarViajeFinalizado);
+                            break;
 
                         //
 
