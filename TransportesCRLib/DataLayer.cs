@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -205,7 +206,7 @@ namespace TransportesCRLib
             }
         }
 
-        public string UsuarioAcceso(string UserName)
+        public string UsuarioAcceso(Conductor conductor, ref StreamWriter servidorStreamWriter)
         {
             string retorno = "";
             SqlCommand commandData = new SqlCommand();
@@ -218,7 +219,7 @@ namespace TransportesCRLib
                 commandData.CommandType = CommandType.Text;
                 //agregamos el parametro al query con el valor requerido
                 commandData.Parameters.Add("@UserName", System.Data.SqlDbType.VarChar, 10);
-                commandData.Parameters["@UserName"].Value = UserName.Trim();
+                commandData.Parameters["@UserName"].Value = conductor.UserName.Trim();
                 reader = commandData.ExecuteReader(); //cargamos el resultado del query al reader
                 if (reader.HasRows) //si existen registros
                 {
@@ -400,7 +401,7 @@ namespace TransportesCRLib
                     commandData = new System.Data.SqlClient.SqlCommand(strquery, sqlConnData);
                     commandData.CommandType = CommandType.Text;
                     //agregamos los parametros al query con el valor requerido
-                    commandData.Parameters.Add("@Id_viaje", System.Data.SqlDbType.VarChar, 10);
+                    commandData.Parameters.Add("@Id_viaje", System.Data.SqlDbType.VarChar, 50);
                     commandData.Parameters["@Id_viaje"].Value = viaje.Id_viaje.Trim();
                     commandData.Parameters.Add("@Lugar_inicio", System.Data.SqlDbType.VarChar, 50);
                     commandData.Parameters["@Lugar_inicio"].Value = viaje.Lugar_inicio.Trim();
@@ -444,7 +445,7 @@ namespace TransportesCRLib
                 commandData = new System.Data.SqlClient.SqlCommand(strquery, sqlConnData);
                 commandData.CommandType = CommandType.Text;
                 //agregamos los parametros al query con el valor requerido
-                commandData.Parameters.Add("@Id_viaje", System.Data.SqlDbType.VarChar, 10);
+                commandData.Parameters.Add("@Id_viaje", System.Data.SqlDbType.VarChar, 50);
                 commandData.Parameters["@Id_viaje"].Value = tracking.Id_viaje.Trim();
                 commandData.Parameters.Add("@Ubicacion", System.Data.SqlDbType.VarChar, 50);
                 commandData.Parameters["@Ubicacion"].Value = tracking.Ubicacion.Trim();
@@ -490,6 +491,150 @@ namespace TransportesCRLib
                 retorno = "Error - " + ex.Message; // retornamos el valor de false si hay algun error
             }
             return retorno; //retornamos el valor de true si todo salio bien
+        }
+        
+        public Conductor getConductorActivo(string UserName)
+        {
+            Conductor retornoconductor=null;
+            SqlCommand commandData = new SqlCommand();
+            SqlDataReader reader;
+            try
+            {
+                OpenData("query"); //abrimos la coneccion a la base de datos
+                commandData = new System.Data.SqlClient.SqlCommand("SELECT [Identificacion]" +
+                    ",[Nombre],[PrimerApeliido],[SegundoApellido],[RutaAsignada],[UserName],[Acceso]" +
+                    "FROM[dbo].[Conductor] where UserName = @UserName", sqlConnData);
+                commandData.CommandType = CommandType.Text;
+                //agregamos el parametro al query con el valor requerido
+                commandData.Parameters.Add("@UserName", System.Data.SqlDbType.VarChar, 10);
+                commandData.Parameters["@UserName"].Value = UserName.Trim();
+                reader = commandData.ExecuteReader(); //cargamos el resultado del query al reader
+                if (reader.HasRows) //si existen registros
+                {
+                    Conductor conductor = new Conductor(
+                        reader["Identificacion"].ToString()
+                        , reader["Nombre"].ToString()
+                        , reader["PrimerApeliido"].ToString()
+                        , reader["SegundoApellido"].ToString()
+                        , reader["RutaAsignada"].ToString()
+                        , reader["UserName"].ToString()
+                        , reader["Acceso"].ToString()
+                        );
+                    reader.Close(); //cerramos el reader
+                    CloseData();// si se logro abrir entonces la cerramos
+                    //return true; // retornamos el valor de true
+                    return conductor;
+                }
+                else
+                {
+                    reader.Close(); //cerramos el reader
+                    CloseData(); //cerramos la coneccion a la base de datos
+                    return retornoconductor;
+                }
+            }
+            catch (Exception ex)
+            {
+                _LatestError = ex.Message;//si existe algun error se muestra un mensaje
+                CloseData(); //cerramos la base de datos
+                return retornoconductor;
+            }
+            
+        }
+
+        public Viaje getViajeActivoConductor(string UserName)
+        {
+            Viaje retornoviaje = null;
+            SqlCommand commandData = new SqlCommand();
+            SqlDataReader reader;
+            try
+            {
+                OpenData("query"); //abrimos la coneccion a la base de datos
+                commandData = new System.Data.SqlClient.SqlCommand("SELECT [Id_viaje],[Lugar_inicio], " +
+                    "[Lugar_final],[Descripcion],[Tiempoestimado],v.Identificacion,[Estado] " +
+                    "FROM[dbo].[Viaje] v with(nolock), Conductor c with(nolock) " +
+                    "where c.UserName = @UserName and v.Estado='ACTIVO' ", sqlConnData);
+                commandData.CommandType = CommandType.Text;
+                //agregamos el parametro al query con el valor requerido
+                commandData.Parameters.Add("@UserName", System.Data.SqlDbType.VarChar, 10);
+                commandData.Parameters["@UserName"].Value = UserName.Trim();
+                reader = commandData.ExecuteReader(); //cargamos el resultado del query al reader
+                if (reader.HasRows) //si existen registros
+                {
+                    Viaje viaje = new Viaje(
+                        reader["Id_viaje"].ToString()
+                        , reader["Lugar_inicio"].ToString()
+                        , reader["Lugar_final"].ToString()
+                        , reader["Descripcion"].ToString()
+                        , reader["Tiempoestimado"].ToString()
+                        , reader["Identificacion"].ToString()
+                        , reader["Estado"].ToString()
+                        );
+                    reader.Close(); //cerramos el reader
+                    CloseData();// si se logro abrir entonces la cerramos
+                    //return true; // retornamos el valor de true
+                    return viaje;
+                }
+                else
+                {
+                    reader.Close(); //cerramos el reader
+                    CloseData(); //cerramos la coneccion a la base de datos
+                    return retornoviaje;
+                }
+            }
+            catch (Exception ex)
+            {
+                _LatestError = ex.Message;//si existe algun error se muestra un mensaje
+                CloseData(); //cerramos la base de datos
+                return retornoviaje;
+            }
+
+        }
+        public Viaje getViajeActivo(string Identificacion)
+        {
+            Viaje retornoviaje = null;
+            SqlCommand commandData = new SqlCommand();
+            SqlDataReader reader;
+            try
+            {
+                OpenData("query"); //abrimos la coneccion a la base de datos
+                commandData = new System.Data.SqlClient.SqlCommand("SELECT [Id_viaje]" +
+                    ",[Lugar_inicio],[Lugar_final],[Descripcion],[Tiempoestimado],[Identificacion],[Estado]" +
+                    "FROM[dbo].[Viaje] where Identificacion = @Identificacion and Estado='ACTIVO' ", sqlConnData);
+                commandData.CommandType = CommandType.Text;
+                //agregamos el parametro al query con el valor requerido
+                commandData.Parameters.Add("@Identificacion", System.Data.SqlDbType.VarChar, 10);
+                commandData.Parameters["@Identificacion"].Value = Identificacion.Trim();
+                reader = commandData.ExecuteReader(); //cargamos el resultado del query al reader
+                if (reader.HasRows) //si existen registros
+                {
+                    Viaje viaje = new Viaje(
+                        reader["Id_viaje"].ToString()
+                        , reader["Lugar_inicio"].ToString()
+                        , reader["Lugar_final"].ToString()
+                        , reader["Descripcion"].ToString()
+                        , reader["Tiempoestimado"].ToString()
+                        , reader["Identificacion"].ToString()
+                        , reader["Estado"].ToString()
+                        );
+                    reader.Close(); //cerramos el reader
+                    CloseData();// si se logro abrir entonces la cerramos
+                    //return true; // retornamos el valor de true
+                    return viaje;
+                }
+                else
+                {
+                    reader.Close(); //cerramos el reader
+                    CloseData(); //cerramos la coneccion a la base de datos
+                    return retornoviaje;
+                }
+            }
+            catch (Exception ex)
+            {
+                _LatestError = ex.Message;//si existe algun error se muestra un mensaje
+                CloseData(); //cerramos la base de datos
+                return retornoviaje;
+            }
+
         }
         public DataTable ConsultarConductores()
         {

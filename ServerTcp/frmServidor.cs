@@ -1,4 +1,5 @@
 ﻿using ClienteTcp;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -19,6 +20,7 @@ namespace ServerTcp
     public partial class frmServidor : Form
     {
         private List<TcpClient> listaClientes;
+        private List<Socket> nSockets;
         private TcpListener tcpListener;
         private int cuentaClientes;
         private bool continuar;
@@ -33,6 +35,7 @@ namespace ServerTcp
         {
             InitializeComponent();
             listaClientes = new List<TcpClient>();
+            nSockets = new List<Socket>();
             cuentaClientes = 0;
             lblClientesConectados.Text = "Clientes conectados: 0";
             btnIniciarServidor.Enabled = true;
@@ -54,15 +57,16 @@ namespace ServerTcp
                 txtStatus.SelectionStart = txtStatus.Text.Length;
                 txtStatus.ScrollToCaret();
 
-
-                Thread thread = new Thread(EscuchaClientes);
-                thread.Name = "Servidor Listener Thread";
-                thread.IsBackground = true;
-                thread.Start();
                 btnIniciarServidor.Enabled = false;
                 btnDetenerServidor.Enabled = true;
                 btnCliente.Enabled = true;
                 btnEnviarMensajeGrupal.Enabled = true;
+
+                Thread thread = new Thread(new ThreadStart(EscuchaClientes));
+                thread.Name = "Servidor Listener Thread";
+                thread.Start();
+                thread.IsBackground = true;
+                
             }
             catch (Exception ex)
             {
@@ -80,13 +84,12 @@ namespace ServerTcp
                 continuar = true;
                 tcpListener = new TcpListener(local, intPort);
                 tcpListener.Start();
+
                 txtStatus.Invoke(new MethodInvoker(delegate {
                     txtStatus.Text += "\r\n"+ DateTime.Now.ToString("T") + "-> Server iniciado. escuchando en :" + local.ToString() + ":" + intPort.ToString() + ") ";
                     txtStatus.SelectionStart = txtStatus.Text.Length;
                     txtStatus.ScrollToCaret();
                 }));
-
-
 
                 while (continuar)
                 {
@@ -97,18 +100,18 @@ namespace ServerTcp
                     }));
 
                     TcpClient client = tcpListener.AcceptTcpClient();   // blocks here until client connects
+                    listaClientes.Add(client);
                     txtStatus.Invoke(new MethodInvoker(delegate {
                         txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->Conexion con cliente aceptada...";
                         txtStatus.SelectionStart = txtStatus.Text.Length;
                         txtStatus.ScrollToCaret();
                     }));
 
-                    Thread thread = new Thread(ComunicacionCliente);
-                    thread.IsBackground = true;
+                    Thread thread = new Thread(new ParameterizedThreadStart(ComunicacionClienteB));
                     thread.Start(client);
                 }
             }
-            catch (SocketException se)
+            catch (SocketException )
             {
                 // swallow this one exception
                 // _statusTextBox.InvokeEx(stb => stb.Text += CRLF + "Problem starting the server.");
@@ -139,6 +142,149 @@ namespace ServerTcp
             }));
         } // end ListenForIncomingConnections() method
 
+        private void ComunicacionClienteB(object obj)
+        {  
+            TcpClient tcpClient = (TcpClient)obj;
+            StreamReader lector = new StreamReader(tcpClient.GetStream());
+            StreamWriter servidorStreamWriter = new StreamWriter(tcpClient.GetStream());
+
+            listaClientes.Add(tcpClient);
+            cuentaClientes += 1;
+            lblClientesConectados.Invoke(new MethodInvoker(delegate {
+                lblClientesConectados.Text = "Clientes conectados: " + cuentaClientes.ToString();
+                txtStatus.SelectionStart = txtStatus.Text.Length;
+                txtStatus.ScrollToCaret();
+            }));
+            while (continuar)
+            {
+                try
+                {
+                    var mensajeTcp = lector.ReadLine();
+                    MensajeSocket<object> mensajeRecibido = JsonConvert.DeserializeObject<MensajeSocket<object>>(mensajeTcp);
+                    SeleccionarMetodo(mensajeRecibido.Mensaje, mensajeTcp, ref servidorStreamWriter);
+                }
+                catch (Exception ex)
+                {
+                    txtStatus.Invoke(new MethodInvoker(delegate {
+                        txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->" + ex.ToString();
+                        txtStatus.SelectionStart = txtStatus.Text.Length;
+                        txtStatus.ScrollToCaret();
+                    }));
+                }
+            }
+        }
+
+        private void SeleccionarMetodo(string accion, string mensajeTcp, ref StreamWriter servidorStreamWriter)
+        {
+            switch (accion)
+            {
+                case "Conectar":
+                    MensajeSocket<Conductor> mensajeConectar = JsonConvert.DeserializeObject<MensajeSocket<Conductor>>(mensajeTcp);
+                    Conductor conductorConectar = mensajeConectar.Valor;
+                    
+                    txtStatus.Invoke(new MethodInvoker(delegate {
+                        txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->Nuevo cliente conectado ";
+                        txtStatus.SelectionStart = txtStatus.Text.Length;
+                        txtStatus.ScrollToCaret();
+                    }));
+                    MensajeSocket<bool> resultado = new MensajeSocket<bool>();
+                    resultado.Mensaje = "Ingreso del usuario valido";
+                    resultado.Valor = true;
+                    servidorStreamWriter.WriteLine(JsonConvert.SerializeObject(resultado));
+                    servidorStreamWriter.Flush();
+                    break;
+                case "loginconductor":
+                    MensajeSocket<Conductor> mensajeLoginConductor = JsonConvert.DeserializeObject<MensajeSocket<Conductor>>(mensajeTcp);
+                    Conductor conductorLogin = mensajeLoginConductor.Valor;
+                    txtStatus.Invoke(new MethodInvoker(delegate {
+                        txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->Cliente: " + conductorLogin.UserName;
+                        txtStatus.SelectionStart = txtStatus.Text.Length;
+                        txtStatus.ScrollToCaret();
+                    }));
+                    //ValidarUsuario(mensajeLoginConductor.Valor, ref servidorStreamWriter);
+                    MensajeSocket<bool> resultadoLoginConductor = new MensajeSocket<bool>();
+                    string resultadoLogin = datalayer.UsuarioAcceso(conductorLogin, ref servidorStreamWriter);
+                    if (resultadoLogin == "OKUsuarioAcceso")
+                    {
+                        resultadoLoginConductor.Mensaje = "Ingreso del usuario valido";
+                        resultadoLoginConductor.Valor = true;
+                    }
+                    else
+                    {
+                        resultadoLoginConductor.Mensaje = "Usuario denegado o no existe";
+                        resultadoLoginConductor.Valor = false;
+                    }
+                    servidorStreamWriter.WriteLine(JsonConvert.SerializeObject(resultadoLoginConductor));
+                    servidorStreamWriter.Flush();
+                    break;
+                case "ObtenerViajeActivo":
+                    MensajeSocket<string> mensajeObtenerViajeActivo = JsonConvert.DeserializeObject<MensajeSocket<string>>(mensajeTcp);
+
+                    ObtenerViajes((string)(mensajeObtenerViajeActivo.Valor), ref servidorStreamWriter);
+                    break;
+                default:  // default case acts as echo server
+                    {
+                        txtStatus.Invoke(new MethodInvoker(delegate {
+                            txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->Cliente " + accion;
+                            txtStatus.SelectionStart = txtStatus.Text.Length;
+                            txtStatus.ScrollToCaret();
+                        }));
+                        escritor.Write("Respuesta servidor: " + "->Cliente " + accion);
+                        escritor.Flush();
+                        break;
+                    }
+            }
+        }
+
+        private void ObtenerViajes(string userName, ref StreamWriter servidorStreamWriter)
+        {
+            MensajeSocket<bool> resultado = new MensajeSocket<bool>();
+            Viaje viajeActivo = datalayer.getViajeActivoConductor(userName);
+            if (viajeActivo==null)
+            {
+                resultado.Mensaje = "Viaje activo" + viajeActivo.Id_viaje;
+                resultado.Valor = true;
+            }
+            else
+            {
+                resultado.Mensaje = "No tiene viajes activos" + viajeActivo.Id_viaje;
+                resultado.Valor = false;
+            }
+            servidorStreamWriter.WriteLine(JsonConvert.SerializeObject(resultado));
+            servidorStreamWriter.WriteLine(JsonConvert.SerializeObject(viajeActivo));
+            servidorStreamWriter.Flush();
+        }
+
+        private void ValidarUsuario(Conductor conductor, ref StreamWriter servidorStreamWriter)
+        {
+            MensajeSocket<bool> resultado = new MensajeSocket<bool>();
+            if(DatosValidarUsuario(conductor, ref servidorStreamWriter))
+            {
+                resultado.Mensaje = "Ingreso del usuario valido";
+                resultado.Valor = true;
+            }
+            else 
+            {
+                resultado.Mensaje = "Usuario denegado o no existe";
+                resultado.Valor = false;
+            }
+            servidorStreamWriter.WriteLine(JsonConvert.SerializeObject(resultado));
+            //servidorStreamWriter.Flush();
+        }
+
+        private bool DatosValidarUsuario(Conductor conductor, ref StreamWriter servidorStreamWriter)
+        {
+            bool resultadoValor = false;
+            string resultadoLogin = datalayer.UsuarioAcceso(conductor, ref servidorStreamWriter);
+            if(resultadoLogin == "OKUsuarioAcceso")
+            {
+                resultadoValor = true;
+            }
+            return resultadoValor;
+        }
+
+
+        /****************************************/
         private void ComunicacionCliente(object obj)
         {
             TcpClient client = (TcpClient)obj;
@@ -160,15 +306,10 @@ namespace ServerTcp
                 bf = new BinaryFormatter();
                 clienteStream.Flush();
 
-                StreamReader reader = new StreamReader(client.GetStream());
-                StreamWriter writer = new StreamWriter(client.GetStream());
-
                 String accion;
                 while (client.Connected)
                 {
-                    //input = reader.ReadLine(); // blocks here until something is received from client
                     accion = lector.ReadString();
-                    //switch (input)
                     switch (accion)
                     {
                         //TODO: Add appropriate cases for commands
@@ -196,9 +337,23 @@ namespace ServerTcp
                                 txtStatus.SelectionStart = txtStatus.Text.Length;
                                 txtStatus.ScrollToCaret();
                             }));
-                            String userName = lector.ReadString();
-                            string resultadoLogin = datalayer.UsuarioAcceso(userName);
-                            escritor.Write(resultadoLogin);
+                            //String userName = lector.ReadString();
+                            //string resultadoLogin = datalayer.UsuarioAcceso(userName);
+                            //Guid guidOutput;
+                            //bool isValid = Guid.TryParse(resultadoLogin, out guidOutput);
+                            //if (isValid) 
+                            //{
+                            //    Conductor conductorActivo = datalayer.getConductorActivo(userName);
+                            //    Viaje viajeActivo = datalayer.getViajeActivo(conductorActivo.Identificacion);
+                            //    escritor.Write("ConductorActivo");
+                            //    bf.Serialize(clienteStream, conductorActivo);
+                            //    bf.Serialize(clienteStream, viajeActivo);
+                            //}
+                            //else
+                            //{
+                            //    escritor.Write(resultadoLogin);
+                            //}
+                            
                             break;
 
                         case "registraconductorcamion":
@@ -254,16 +409,13 @@ namespace ServerTcp
                                 }));
                                 escritor.Write("Respuesta servidor: " + "->Cliente " + client.GetHashCode());
                                 escritor.Flush();
-                                //writer.WriteLine("Respuesta servidor: " + "->Cliente " + client.GetHashCode());
-                                //writer.Flush();
-
                                 break;
                             }
                     }
                 }
 
             }
-            catch (SocketException se)
+            catch (SocketException)
             {
                 // Swallow this exception
                 // _statusTextBox.InvokeEx(stb => stb.Text += CRLF + "Problem processing client requests.");
@@ -274,6 +426,7 @@ namespace ServerTcp
             {
                 txtStatus.Invoke(new MethodInvoker(delegate {
                     txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->Problemas con la solicitud del cliente " + input;
+                    txtStatus.Text += "\r\n" + ex.Message;
                     txtStatus.SelectionStart = txtStatus.Text.Length;
                     txtStatus.ScrollToCaret();
                 }));
@@ -342,13 +495,37 @@ namespace ServerTcp
                     txtStatus.SelectionStart = txtStatus.Text.Length;
                     txtStatus.ScrollToCaret();
                 }));
+                
                 foreach (TcpClient client in listaClientes)
                 {
-                    NetworkStream clienteStream = client.GetStream();
-                    escritor = new BinaryWriter(clienteStream);
-                    clienteStream.Flush();
-                    escritor.Write(txtEnviarMensaje.Text);
-                    escritor.Flush();
+                    //TcpClient cliente = new TcpClient();
+                    //IPEndPoint clienteEndPoint = new IPEndPoint(
+                    //    ((IPEndPoint)client.Client.RemoteEndPoint).Address,
+                    //    ((IPEndPoint)client.Client.RemoteEndPoint).Port
+                    //);
+                    //cliente.Connect(clienteEndPoint);
+                    MensajeSocket<bool> resultado = new MensajeSocket<bool>();
+                    resultado.Mensaje = "mensaje grupal";
+                    resultado.Valor = true;
+                    StreamWriter servidorStreamWriter = new StreamWriter(client.GetStream());
+                    servidorStreamWriter.WriteLine(JsonConvert.SerializeObject(resultado));
+                    servidorStreamWriter.Flush();
+                    //Conductor conductor = new Conductor("", "", "", "", "", "2", "");
+                    //MensajeSocket<Conductor> mensajeConectar = new MensajeSocket<Conductor> { Mensaje = "loginconductor", Valor = conductor };
+                    //servidorStreamWriter.WriteLine(JsonConvert.SerializeObject(mensajeConectar));
+                    //servidorStreamWriter.Flush();
+
+                    //clienteStreamReader = new StreamReader(cliente.GetStream());
+                    //clienteStreamWriter = new StreamWriter(cliente.GetStream());
+                    //clienteStreamWriter.WriteLine(JsonConvert.SerializeObject(mensajeConectar));
+                    //clienteStreamWriter.Flush();
+
+                    //NetworkStream clienteStream = client.GetStream();
+                    //escritor = new BinaryWriter(clienteStream);
+                    //clienteStream.Flush();
+                    //escritor.Write(txtEnviarMensaje.Text);
+                    //escritor.Flush();
+
                     //StreamWriter writer = new StreamWriter(client.GetStream());
                     //writer.WriteLine(txtEnviarMensaje.Text);
                     //writer.Flush();

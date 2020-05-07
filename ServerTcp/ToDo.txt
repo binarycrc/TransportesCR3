@@ -14,3 +14,54 @@ label.Text = "texto desde delegado";
 En ese caso es un label pero si fuera textbox sería igual o cualquier otro.
 
 https://stackoverflow.com/questions/36471563/c-sharp-this-invokemethodinvokerdelegate
+
+https://stackoverflow.com/questions/53379864/c-sharp-tcp-ip-client-and-server-no-respond-error
+
+
+public void handlerThread()
+        {
+            Socket handlerSocket = (Socket)nSockets[nSockets.Count - 1];
+            NetworkStream clienteStream = new NetworkStream(handlerSocket);
+            escritor = new BinaryWriter(clienteStream);
+            lector = new BinaryReader(clienteStream);
+            bf = new BinaryFormatter();
+
+                String accion;
+                while (true)
+                {
+                    accion = lector.ReadString();
+                    escritor.Write(handlerSocket.ToString());
+                    switch (accion)
+                    {
+                        default:  // default case acts as echo server
+                            {
+                                txtStatus.Invoke(new MethodInvoker(delegate {
+                                    txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->Cliente " + handlerSocket.GetHashCode() + ": " + accion;
+                                    txtStatus.SelectionStart = txtStatus.Text.Length;
+                                    txtStatus.ScrollToCaret();
+                                }));
+                                escritor.Write("Respuesta servidor: " + "->Cliente " + handlerSocket.GetHashCode());
+                                escritor.Flush();
+                                break;
+                            }
+                    }
+                }
+
+            //lbConnections.Items.Add("File Written.");
+            handlerSocket = null;
+        }
+
+        //Socket handlerSocket = tcpListener.AcceptSocket();
+                    //if (handlerSocket.Connected)
+                    //{
+                    //    Control.CheckForIllegalCrossThreadCalls = false;
+                    //    //lbConnections.Items.Add(handlerSocket.RemoteEndPoint.ToString() + " Connected.");
+                    //    lock (this)
+                    //    {
+                    //        nSockets.Add(handlerSocket);
+                    //    }
+                    //    ThreadStart thdstHandler = new ThreadStart(handlerThread);
+                    //    Thread thdHnadler = new Thread(thdstHandler);
+                    //    thdHnadler.IsBackground = true;
+                    //    thdHnadler.Start();
+                    //}

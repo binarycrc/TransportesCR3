@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -20,6 +21,9 @@ namespace ClienteTcp
         bool clienteConectado;
         public IPAddress ipServidor = IPAddress.Parse("127.0.0.1");
         public int intPort = 16830;
+        public IPEndPoint serverEndPoint;
+        public StreamWriter clienteStreamWriter;
+        public StreamReader clienteStreamReader;
 
         private TcpClient cliente;
         private BinaryWriter escritor;
@@ -37,37 +41,7 @@ namespace ClienteTcp
             //tabIngresoViajes.Parent = tabMain; //show
             tabViajes.Parent = tabTrash; // hide    
             //tabViajes.Parent = tabMain; //show
-
-            //try
-            //{
-            //    cliente = new TcpClient();
-            //    IPEndPoint serverEndPoint = new IPEndPoint(ipServidor, intPort);
-
-            //    cliente.Connect(serverEndPoint);
-            //    lblMensaje.Text = "Cliente Conectado!"; 
-            //    clienteConectado = true;
-            //}
-            //catch (SocketException sex)
-            //{
-            //    lblMensaje.Text = sex.Message;
-            //    clienteConectado = false;
-            //}
-            //catch (Exception ex)
-            //{
-            //    lblMensaje.Text = ex.Message;
-            //    clienteConectado = false;
-            //}
-            //finally { 
-            //    if(cliente == null) 
-            //    {
-            //        cliente.Close();
-            //        lblMensaje.Text = "Problemas de comunicacion con el servidor!"; 
-            //        clienteConectado = false;
-            //    }
-            //}
-            //btnIngresar.Enabled = clienteConectado;
-            //linkRegistrarse.Enabled = clienteConectado;
-
+            //timerCliente.Start();
         }
 
         private void btnIngresar_Click(object sender, EventArgs e)
@@ -76,38 +50,51 @@ namespace ClienteTcp
             {
                 if (cliente.Connected)
                 {
-                    NetworkStream clienteStream = cliente.GetStream();
-                    escritor = new BinaryWriter(clienteStream);
-                    lector = new BinaryReader(clienteStream);
-                    clienteStream.Flush();
-                    escritor.Write("loginconductor");
-                    escritor.Write(txtUsuario.Text.Trim());
+                    //NetworkStream clienteStream = cliente.GetStream();
+                    //escritor = new BinaryWriter(clienteStream);
+                    ////lector = new BinaryReader(clienteStream);
+                    //clienteStream.Flush();
+                    //escritor.Write("loginconductor");
+                    //escritor.Write(txtUsuario.Text.Trim());
+
+                    Conductor conductor = new Conductor("", "", "", "", "", txtUsuario.Text, "");
+                    MensajeSocket<Conductor> mensajeConectar = new MensajeSocket<Conductor> { Mensaje = "loginconductor", Valor = conductor };
+
+                    clienteStreamReader = new StreamReader(cliente.GetStream());
+                    clienteStreamWriter = new StreamWriter(cliente.GetStream());
+                    clienteStreamWriter.WriteLine(JsonConvert.SerializeObject(mensajeConectar));
+                    clienteStreamWriter.Flush();
+                    string mensaje = clienteStreamReader.ReadLine();
+                    MensajeSocket<bool> resultado;
+                    resultado = JsonConvert.DeserializeObject<MensajeSocket<bool>>(mensaje);
+
+                    if (resultado.Valor)
+                    {
+                        txtStatus.Invoke(new MethodInvoker(delegate {
+                            txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->Ingreso de Conductor";
+                            txtStatus.SelectionStart = txtStatus.Text.Length;
+                            txtStatus.ScrollToCaret();
+                        }));
+                        tabIngresoViajes.Invoke(new MethodInvoker(delegate {
+                            tabIngresoViajes.Parent = tabMain;
+                        }));
+
+                        tabIngreso.Invoke(new MethodInvoker(delegate {
+                            tabIngreso.Parent = tabTrash;
+                        }));
+                    }
+                    else
+                    {
+                        txtStatus.Invoke(new MethodInvoker(delegate {
+                            txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->Ingreso de Conductor";
+                            txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->El conductor no existe o tiene el acceso denegado!";
+                            txtStatus.SelectionStart = txtStatus.Text.Length;
+                            txtStatus.ScrollToCaret();
+                        }));
+                    }
                 }
 
-                //MessageBox.Show(respuesta);
-
-                //switch (respuesta)
-                //{
-                //    case "OK":
-                //        //tabIngreso.Parent = tabMain; //show
-                //        tabIngreso.Parent = null; // hide    
-                //        tabRegistroConductor.Parent = null; // hide    
-                //        //tabRegistroConductor.Parent = tabMain; //show
-                //        //tabIngresoViajes.Parent = null; // hide    
-                //        tabIngresoViajes.Parent = tabMain; //show
-                //        tabViajes.Parent = null; // hide    
-                //        //tabViajes.Parent = tabMain; //show
-
-                //        break;
-
-                //    case "Denegado":
-                //        MessageBox.Show("Acceso denegado o Usuario no existe!");
-                //        break;
-
-                //    default:
-                //        MessageBox.Show(respuesta);
-                //        break;
-                //}
+                
             }
             catch (IOException iex) {
                 lblMensaje.Text = iex.Message;
@@ -129,6 +116,7 @@ namespace ClienteTcp
         {
             try
             {
+
                 cliente.Close();
                 this.Close();
             }
@@ -205,38 +193,6 @@ namespace ClienteTcp
                         txtStatus.SelectionStart = txtStatus.Text.Length;
                         txtStatus.ScrollToCaret();
                     }));
-
-                    //String respuesta = lector.ReadString();
-                    //switch (respuesta)
-                    //{
-                    //    case "OK":
-                    //        tabIngreso.Parent = tabMain; //show
-                    //        //tabIngreso.Parent = null; // hide    
-                    //        tabRegistroConductor.Parent = null; // hide    
-                    //        //tabRegistroConductor.Parent = tabMain; //show
-                    //        tabIngresoViajes.Parent = null; // hide    
-                    //        //tabIngresoViajes.Parent = tabMain; //show
-                    //        tabViajes.Parent = null; // hide    
-                    //        //tabViajes.Parent = tabMain; //show
-                    //        MessageBox.Show("Conductor y camion creados!");
-                    //        break;
-
-                    //    case "ExistenteConductor":
-                    //        MessageBox.Show("El conductor con la identificacion " + txtIdentificacion.Text + ", ya existe!");
-                    //        break;
-
-                    //    case "ExistenteUsuario":
-                    //        MessageBox.Show("El conductor con el Usuario " + txtUsuario.Text + ", ya existe!");
-                    //        break;
-                    //    case "ExistenteCamion":
-                    //        MessageBox.Show("El camion con la placa " + txtPlaca.Text + ", ya existe!");
-                    //        break;
-
-                    //    default:
-                    //        MessageBox.Show(respuesta);
-                    //        break;
-                    //}
-                    //existe el camion
                 }
                 else
                 { lblMensaje.Text = "Verifique los datos, todos los campos son obligatorios."; }
@@ -308,15 +264,27 @@ namespace ClienteTcp
         {
             try
             {
+                cliente = new TcpClient();
+                serverEndPoint = new IPEndPoint(ipServidor, intPort);
+                cliente.Connect(serverEndPoint);
+                Conductor conductor = new Conductor("", "", "", "", "", txtUsuario.Text, "");
+                MensajeSocket<Conductor> mensajeConectar = new MensajeSocket<Conductor> { Mensaje = "Conectar", Valor = conductor };
 
-                cliente = new TcpClient(ipServidor.ToString(), intPort);
-                Thread thread = new Thread(EscuchaClientes);
-                thread.IsBackground = true;
-                thread.Start(cliente);
+                clienteStreamReader = new StreamReader(cliente.GetStream());
+                clienteStreamWriter = new StreamWriter(cliente.GetStream());
+                clienteStreamWriter.WriteLine(JsonConvert.SerializeObject(mensajeConectar));
+                clienteStreamWriter.Flush();
+
+                //TcpClient clienteListener = new TcpClient(ipServidor.ToString(), intPort);
+                //Thread thread = new Thread(EscuchaClientes);
+                //thread.IsBackground = true;
+                //thread.Start(clienteListener);
 
                 btnConectarCliente.Enabled = false;
                 btnIngresar.Enabled = true;
                 linkRegistrarse.Enabled = true;
+                
+                
             }
             catch (Exception ex)
             {
@@ -329,8 +297,6 @@ namespace ClienteTcp
         {
             TcpClient client = (TcpClient)cliente;
             string input = string.Empty;
-            StreamReader reader = null;
-            StreamWriter writer = null;
 
             NetworkStream clienteStream = client.GetStream();
             escritor = new BinaryWriter(clienteStream);
@@ -342,12 +308,6 @@ namespace ClienteTcp
 
             try
             {
-                //reader = new StreamReader(client.GetStream());
-                //writer = new StreamWriter(client.GetStream());
-                //accion = lector.ReadString();
-                // Tell the server we've connected
-                //writer.WriteLine("Hola desde el cliente");
-                //writer.Flush();
                 escritor.Write("Nuevo Cliente");
                 escritor.Flush();
 
@@ -462,6 +422,41 @@ namespace ClienteTcp
                                     txtStatus.ScrollToCaret();
                                 }));
                                 break;
+                            case "ConductorActivo":
+                                Conductor conductorActivo = (Conductor)(bf.Deserialize(clienteStream));
+                                Viaje viajeActivo = (Viaje)(bf.Deserialize(clienteStream));
+                                txtIdentificacion.Invoke(new MethodInvoker(delegate {
+                                    txtIdentificacion.Text = conductorActivo.Identificacion;
+                                }));
+                                txtNombre.Invoke(new MethodInvoker(delegate {
+                                    txtNombre.Text = conductorActivo.Nombre;
+                                }));
+                                txtPApellido.Invoke(new MethodInvoker(delegate {
+                                    txtPApellido.Text = conductorActivo.PApellido;
+                                }));
+                                txtSApellido.Invoke(new MethodInvoker(delegate {
+                                    txtSApellido.Text = conductorActivo.SApellido;
+                                }));
+                                txtUserName.Invoke(new MethodInvoker(delegate {
+                                    txtUserName.Text = conductorActivo.UserName;
+                                }));
+
+                                lblGUIDActivo.Invoke(new MethodInvoker(delegate {
+                                    lblGUIDActivo.Text = viajeActivo.Id_viaje;
+                                }));
+
+                                txtStatus.Invoke(new MethodInvoker(delegate {
+                                    txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->" + accion;
+                                    txtStatus.SelectionStart = txtStatus.Text.Length;
+                                    txtStatus.ScrollToCaret();
+                                }));
+                                tabIngreso.Invoke(new MethodInvoker(delegate {
+                                    tabIngreso.Parent = tabTrash;
+                                }));
+                                tabViajes.Invoke(new MethodInvoker(delegate {
+                                    tabViajes.Parent = tabMain;
+                                }));
+                                break;
                             default:
                                 {
                                     txtStatus.Invoke(new MethodInvoker(delegate {
@@ -483,6 +478,7 @@ namespace ClienteTcp
                 {
                     txtStatus.Invoke(new MethodInvoker(delegate {
                         txtStatus.Text += "\r\n" + "Problemas de comunicacion con el servidor";
+                        txtStatus.Text += "\r\n" + ex.Message;
                     }));
                 }
             }
@@ -518,6 +514,7 @@ namespace ClienteTcp
             {
                 txtStatus.Invoke(new MethodInvoker(delegate {
                     txtStatus.Text += "\r\n" + "Problemas desconectando el servidor";
+                    txtStatus.Text += "\r\n" + ex.Message;
                 }));
                 txtStatus.Invoke(new MethodInvoker(delegate {
                     txtStatus.Text += "\r\n" + string.Empty;
@@ -600,5 +597,7 @@ namespace ClienteTcp
                 lblMensaje.Text = ex.Message;
             }
         }
+
+        
     }
 }

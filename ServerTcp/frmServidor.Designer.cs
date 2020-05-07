@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.btnViajesTodos = new System.Windows.Forms.Button();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.btnCliente = new System.Windows.Forms.Button();
@@ -45,11 +46,12 @@
             this.gvConductores = new System.Windows.Forms.DataGridView();
             this.txtStatus = new System.Windows.Forms.TextBox();
             this.tabValidaConductor = new System.Windows.Forms.TabPage();
+            this.btnCargarConductor = new System.Windows.Forms.Button();
             this.btnDenegarConductor = new System.Windows.Forms.Button();
             this.tabMain = new System.Windows.Forms.TabPage();
             this.lblClientesConectados = new System.Windows.Forms.Label();
             this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.btnCargarConductor = new System.Windows.Forms.Button();
+            this.timerCliente = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
@@ -231,6 +233,16 @@
             this.tabValidaConductor.Text = "Validar Conductor";
             this.tabValidaConductor.UseVisualStyleBackColor = true;
             // 
+            // btnCargarConductor
+            // 
+            this.btnCargarConductor.Location = new System.Drawing.Point(3, 159);
+            this.btnCargarConductor.Name = "btnCargarConductor";
+            this.btnCargarConductor.Size = new System.Drawing.Size(108, 35);
+            this.btnCargarConductor.TabIndex = 7;
+            this.btnCargarConductor.Text = "Ver Conductores";
+            this.btnCargarConductor.UseVisualStyleBackColor = true;
+            this.btnCargarConductor.Click += new System.EventHandler(this.btnCargarConductor_Click);
+            // 
             // btnDenegarConductor
             // 
             this.btnDenegarConductor.Location = new System.Drawing.Point(350, 159);
@@ -278,24 +290,17 @@
             this.tabControl1.Size = new System.Drawing.Size(469, 455);
             this.tabControl1.TabIndex = 1;
             // 
-            // btnCargarConductor
-            // 
-            this.btnCargarConductor.Location = new System.Drawing.Point(3, 159);
-            this.btnCargarConductor.Name = "btnCargarConductor";
-            this.btnCargarConductor.Size = new System.Drawing.Size(108, 35);
-            this.btnCargarConductor.TabIndex = 7;
-            this.btnCargarConductor.Text = "Ver Conductores";
-            this.btnCargarConductor.UseVisualStyleBackColor = true;
-            this.btnCargarConductor.Click += new System.EventHandler(this.btnCargarConductor_Click);
-            // 
             // frmServidor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(469, 455);
             this.Controls.Add(this.tabControl1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "frmServidor";
-            this.Text = "Form1";
+            this.Text = "Servidor";
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
@@ -335,5 +340,6 @@
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.Label lblClientesConectados;
         private System.Windows.Forms.Button btnCargarConductor;
+        private System.Windows.Forms.Timer timerCliente;
     }
 }

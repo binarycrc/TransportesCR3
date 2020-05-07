@@ -32,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -50,28 +53,10 @@
     <Compile Include="frmServidor.Designer.cs">
       <DependentUpon>frmServidor.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmConductores.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="frmConductores.Designer.cs">
-      <DependentUpon>frmConductores.cs</DependentUpon>
-    </Compile>
-    <Compile Include="OLDfrmServer.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="OLDfrmServer.Designer.cs">
-      <DependentUpon>OLDfrmServer.cs</DependentUpon>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="frmServidor.resx">
       <DependentUpon>frmServidor.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="frmConductores.resx">
-      <DependentUpon>frmConductores.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="OLDfrmServer.resx">
-      <DependentUpon>OLDfrmServer.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -82,6 +67,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
