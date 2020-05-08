@@ -124,7 +124,7 @@
             this.groupBox1.Controls.Add(this.btnIngresar);
             this.groupBox1.Controls.Add(this.txtUsuario);
             this.groupBox1.Controls.Add(this.label1);
-            this.groupBox1.Location = new System.Drawing.Point(6, 3);
+            this.groupBox1.Location = new System.Drawing.Point(47, 3);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(180, 132);
             this.groupBox1.TabIndex = 1;
@@ -229,7 +229,7 @@
             this.btnRegistroConductor.Name = "btnRegistroConductor";
             this.btnRegistroConductor.Size = new System.Drawing.Size(123, 33);
             this.btnRegistroConductor.TabIndex = 15;
-            this.btnRegistroConductor.Text = "Registrar";
+            this.btnRegistroConductor.Text = "Registrar Conductor";
             this.btnRegistroConductor.UseVisualStyleBackColor = true;
             this.btnRegistroConductor.Click += new System.EventHandler(this.btnRegistroConductor_Click);
             // 
@@ -582,7 +582,7 @@
             this.btnIngresoViaje.Name = "btnIngresoViaje";
             this.btnIngresoViaje.Size = new System.Drawing.Size(106, 41);
             this.btnIngresoViaje.TabIndex = 0;
-            this.btnIngresoViaje.Text = "Registro";
+            this.btnIngresoViaje.Text = "Crear Viaje";
             this.btnIngresoViaje.UseVisualStyleBackColor = true;
             this.btnIngresoViaje.Click += new System.EventHandler(this.btnIngresoViaje_Click);
             // 
@@ -681,7 +681,7 @@
             this.btnActualizarViaje.Name = "btnActualizarViaje";
             this.btnActualizarViaje.Size = new System.Drawing.Size(106, 32);
             this.btnActualizarViaje.TabIndex = 4;
-            this.btnActualizarViaje.Text = "Registro";
+            this.btnActualizarViaje.Text = "Actualizar";
             this.btnActualizarViaje.UseVisualStyleBackColor = true;
             this.btnActualizarViaje.Click += new System.EventHandler(this.btnActualizarViaje_Click);
             // 
@@ -772,6 +772,7 @@
             this.Name = "frmCliente";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Cliente";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmCliente_FormClosing);
             this.tabMain.ResumeLayout(false);
             this.tabIngreso.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);

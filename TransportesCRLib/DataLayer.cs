@@ -206,7 +206,7 @@ namespace TransportesCRLib
             }
         }
 
-        public string UsuarioAcceso(Conductor conductor, ref StreamWriter servidorStreamWriter)
+        public string UsuarioAcceso(Conductor conductor)
         {
             string retorno = "";
             SqlCommand commandData = new SqlCommand();
@@ -311,7 +311,7 @@ namespace TransportesCRLib
                 return false; //retornamos el valor false
             }
         }
-        public string RegistrarConductorCamion(Conductor conductor, Camion camion)
+        public string RegistrarConductorCamion(Conductor conductor)
         {
             string retorno = "";
             SqlCommand commandData = new SqlCommand();
@@ -319,15 +319,15 @@ namespace TransportesCRLib
             {
                 if (ExisteConductor(conductor.Identificacion) == true) //buscamos si existe el conductor
                 {
-                    retorno = "ExistenteConductor";
+                    retorno = "Conductor ya existe!";
                 }
                 else if (ExisteUsuario(conductor.UserName) == true) //buscamos si existe el conductor
                 {
-                    retorno = "ExistenteUsuario";
+                    retorno = "Usuario ya existe!";
                 }
-                else if (ExisteCamion(camion.Placa) == true) //buscamos si existe el conductor
+                else if (ExisteCamion(conductor.Placa) == true) //buscamos si existe el conductor
                 {
-                    retorno = "ExistenteCamion";
+                    retorno = "Camion ya existe!";
                 }
                 else if(retorno=="")
                 {
@@ -335,8 +335,8 @@ namespace TransportesCRLib
                     string strquery = "INSERT INTO [Conductor]([Identificacion],[Nombre]" +
                         ",[PrimerApeliido],[SegundoApellido],[RutaAsignada],UserName, acceso)" +
                         "VALUES(@Identificacion,@Nombre,@PrimerApellido,@SegundoApellido,@RutaAsignada,@UserName,@Acceso);" +
-                        "INSERT INTO [Camion]([Placa],[AnnoModelo],[Marca],[CapacidadKG],[CapacidadVl])" +
-                    "VALUES(@Placa,@AnnoModelo,@Marca,@CapacidadKG,@CapacidadVl)";
+                        "INSERT INTO [Camion]([Placa],[AnnoModelo],[Marca])" +
+                    "VALUES(@Placa,@AnnoModelo,@Marca)";
                     commandData = new System.Data.SqlClient.SqlCommand(strquery, sqlConnData);
                     commandData.CommandType = CommandType.Text;
                     //agregamos los parametros al query con el valor requerido
@@ -357,15 +357,11 @@ namespace TransportesCRLib
                     commandData.Parameters["@Acceso"].Value = conductor.Acceso.Trim();
 
                     commandData.Parameters.Add("@Placa", System.Data.SqlDbType.VarChar, 8);
-                    commandData.Parameters["@Placa"].Value = camion.Placa.Trim();
+                    commandData.Parameters["@Placa"].Value = conductor.Placa.Trim();
                     commandData.Parameters.Add("@AnnoModelo", System.Data.SqlDbType.VarChar, 4);
-                    commandData.Parameters["@AnnoModelo"].Value = camion.Modelo.Trim();
+                    commandData.Parameters["@AnnoModelo"].Value = conductor.Modelo.Trim();
                     commandData.Parameters.Add("@Marca", System.Data.SqlDbType.VarChar, 50);
-                    commandData.Parameters["@Marca"].Value = camion.Marca.Trim();
-                    commandData.Parameters.Add("@CapacidadKG", System.Data.SqlDbType.Decimal);
-                    commandData.Parameters["@CapacidadKG"].Value = Convert.ToDecimal(camion.capacidadkilos.Trim());
-                    commandData.Parameters.Add("@CapacidadVl", System.Data.SqlDbType.Decimal);
-                    commandData.Parameters["@CapacidadVl"].Value = Convert.ToDecimal(camion.capacidadvolumen.Trim());
+                    commandData.Parameters["@Marca"].Value = conductor.Marca.Trim();
 
                     OpenData("query"); //abrimos la base de datos
                     commandData.ExecuteNonQuery(); //ejecutamos el query en la base de datos con todos los parametros
@@ -432,7 +428,7 @@ namespace TransportesCRLib
             }
             return retorno; //retornamos el valor de true si todo salio bien
         }
-        public string RegistrarViajeActualizacion(Tracking tracking)
+        public string RegistrarTracking(Tracking tracking)
         {
             string retorno = "";
             SqlCommand commandData = new SqlCommand();
@@ -455,7 +451,7 @@ namespace TransportesCRLib
                 OpenData("query"); //abrimos la base de datos
                 commandData.ExecuteNonQuery(); //ejecutamos el query en la base de datos con todos los parametros
                 CloseData();// cerramos la coneccion a la base de datos
-                retorno = "OKViajeActualizacion";
+                retorno = "OKTracking";
 
             }
             catch (Exception ex)
@@ -519,6 +515,7 @@ namespace TransportesCRLib
                         , reader["RutaAsignada"].ToString()
                         , reader["UserName"].ToString()
                         , reader["Acceso"].ToString()
+                        , "","",""
                         );
                     reader.Close(); //cerramos el reader
                     CloseData();// si se logro abrir entonces la cerramos
@@ -543,16 +540,16 @@ namespace TransportesCRLib
 
         public Viaje getViajeActivoConductor(string UserName)
         {
-            Viaje retornoviaje = null;
+            Viaje retornoviaje=null;
             SqlCommand commandData = new SqlCommand();
             SqlDataReader reader;
             try
             {
                 OpenData("query"); //abrimos la coneccion a la base de datos
-                commandData = new System.Data.SqlClient.SqlCommand("SELECT [Id_viaje],[Lugar_inicio], " +
-                    "[Lugar_final],[Descripcion],[Tiempoestimado],v.Identificacion,[Estado] " +
+                commandData = new System.Data.SqlClient.SqlCommand("SELECT v.Id_viaje,v.Lugar_inicio, " +
+                    "v.Lugar_final,v.Descripcion,v.Tiempoestimado,c.identificacion,v.Estado " +
                     "FROM[dbo].[Viaje] v with(nolock), Conductor c with(nolock) " +
-                    "where c.UserName = @UserName and v.Estado='ACTIVO' ", sqlConnData);
+                    "where v.Identificacion = c.Identificacion and c.UserName = @UserName and v.Estado='ACTIVO' ", sqlConnData);
                 commandData.CommandType = CommandType.Text;
                 //agregamos el parametro al query con el valor requerido
                 commandData.Parameters.Add("@UserName", System.Data.SqlDbType.VarChar, 10);
@@ -560,19 +557,22 @@ namespace TransportesCRLib
                 reader = commandData.ExecuteReader(); //cargamos el resultado del query al reader
                 if (reader.HasRows) //si existen registros
                 {
-                    Viaje viaje = new Viaje(
-                        reader["Id_viaje"].ToString()
-                        , reader["Lugar_inicio"].ToString()
-                        , reader["Lugar_final"].ToString()
-                        , reader["Descripcion"].ToString()
-                        , reader["Tiempoestimado"].ToString()
-                        , reader["Identificacion"].ToString()
-                        , reader["Estado"].ToString()
-                        );
+                    while (reader.Read())
+                    {
+                        retornoviaje = new Viaje(
+                            reader["Id_viaje"].ToString()
+                            , reader["Lugar_inicio"].ToString()
+                            , reader["Lugar_final"].ToString()
+                            , reader["Descripcion"].ToString()
+                            , reader["Tiempoestimado"].ToString()
+                            , reader["Identificacion"].ToString()
+                            , reader["Estado"].ToString()
+                            );
+                    }
                     reader.Close(); //cerramos el reader
                     CloseData();// si se logro abrir entonces la cerramos
                     //return true; // retornamos el valor de true
-                    return viaje;
+                    return retornoviaje;
                 }
                 else
                 {

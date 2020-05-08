@@ -30,13 +30,13 @@
         {
             this.components = new System.ComponentModel.Container();
             this.btnViajesTodos = new System.Windows.Forms.Button();
-            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.gvViajes = new System.Windows.Forms.DataGridView();
             this.btnCliente = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.btnEnviarMensajeGrupal = new System.Windows.Forms.Button();
             this.txtEnviarMensaje = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.dataGridView2 = new System.Windows.Forms.DataGridView();
+            this.gvViajesTracking = new System.Windows.Forms.DataGridView();
             this.btnIniciarServidor = new System.Windows.Forms.Button();
             this.btnDetenerServidor = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
@@ -52,9 +52,9 @@
             this.lblClientesConectados = new System.Windows.Forms.Label();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.timerCliente = new System.Windows.Forms.Timer(this.components);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gvViajes)).BeginInit();
             this.groupBox1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gvViajesTracking)).BeginInit();
             this.tabViajes.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gvConductores)).BeginInit();
             this.tabValidaConductor.SuspendLayout();
@@ -70,14 +70,15 @@
             this.btnViajesTodos.TabIndex = 8;
             this.btnViajesTodos.Text = "Todos los Viajes";
             this.btnViajesTodos.UseVisualStyleBackColor = true;
+            this.btnViajesTodos.Click += new System.EventHandler(this.btnViajesTodos_Click);
             // 
-            // dataGridView1
+            // gvViajes
             // 
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Location = new System.Drawing.Point(4, 24);
-            this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.Size = new System.Drawing.Size(452, 150);
-            this.dataGridView1.TabIndex = 1;
+            this.gvViajes.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.gvViajes.Location = new System.Drawing.Point(4, 24);
+            this.gvViajes.Name = "gvViajes";
+            this.gvViajes.Size = new System.Drawing.Size(452, 150);
+            this.gvViajes.TabIndex = 1;
             // 
             // btnCliente
             // 
@@ -128,13 +129,13 @@
             this.label1.TabIndex = 10;
             this.label1.Text = "Historial";
             // 
-            // dataGridView2
+            // gvViajesTracking
             // 
-            this.dataGridView2.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView2.Location = new System.Drawing.Point(3, 205);
-            this.dataGridView2.Name = "dataGridView2";
-            this.dataGridView2.Size = new System.Drawing.Size(452, 150);
-            this.dataGridView2.TabIndex = 9;
+            this.gvViajesTracking.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.gvViajesTracking.Location = new System.Drawing.Point(3, 205);
+            this.gvViajesTracking.Name = "gvViajesTracking";
+            this.gvViajesTracking.Size = new System.Drawing.Size(452, 150);
+            this.gvViajesTracking.TabIndex = 9;
             // 
             // btnIniciarServidor
             // 
@@ -169,10 +170,10 @@
             // 
             this.tabViajes.Controls.Add(this.label2);
             this.tabViajes.Controls.Add(this.label1);
-            this.tabViajes.Controls.Add(this.dataGridView2);
+            this.tabViajes.Controls.Add(this.gvViajesTracking);
             this.tabViajes.Controls.Add(this.btnViajesTodos);
             this.tabViajes.Controls.Add(this.btnViajesActivos);
-            this.tabViajes.Controls.Add(this.dataGridView1);
+            this.tabViajes.Controls.Add(this.gvViajes);
             this.tabViajes.Location = new System.Drawing.Point(4, 22);
             this.tabViajes.Name = "tabViajes";
             this.tabViajes.Padding = new System.Windows.Forms.Padding(3);
@@ -301,10 +302,11 @@
             this.MinimizeBox = false;
             this.Name = "frmServidor";
             this.Text = "Servidor";
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmServidor_FormClosing);
+            ((System.ComponentModel.ISupportInitialize)(this.gvViajes)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gvViajesTracking)).EndInit();
             this.tabViajes.ResumeLayout(false);
             this.tabViajes.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gvConductores)).EndInit();
@@ -319,13 +321,13 @@
         #endregion
 
         private System.Windows.Forms.Button btnViajesTodos;
-        private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.DataGridView gvViajes;
         private System.Windows.Forms.Button btnCliente;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Button btnEnviarMensajeGrupal;
         private System.Windows.Forms.TextBox txtEnviarMensaje;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.DataGridView dataGridView2;
+        private System.Windows.Forms.DataGridView gvViajesTracking;
         private System.Windows.Forms.Button btnIniciarServidor;
         private System.Windows.Forms.Button btnDetenerServidor;
         private System.Windows.Forms.Label label2;

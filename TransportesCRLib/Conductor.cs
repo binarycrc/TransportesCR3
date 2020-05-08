@@ -25,6 +25,10 @@ namespace TransportesCRLib
         string _ruta;
         string _username;
         string _acceso;
+        string _placa;
+        string _modelo;
+        string _marca;
+
         /// <summary>
         /// Constructor de la clase Empleado
         /// </summary>
@@ -35,7 +39,8 @@ namespace TransportesCRLib
         /// <param name="rutaasignada"></param>
         /// <param name="username"></param>
         /// <param name="acceso"></param>
-        public Conductor(string identificacion, string nombre, string papellido, string sapellido, string rutaasignada, string username, string acceso)
+        public Conductor(string identificacion, string nombre, string papellido, string sapellido, string rutaasignada, string username, string acceso
+            , string placa, string modelo, string marca)
         {
             Identificacion = identificacion;
             Nombre = nombre;
@@ -44,7 +49,11 @@ namespace TransportesCRLib
             Ruta = rutaasignada;
             UserName = username;
             Acceso = acceso;
+            Placa = placa;
+            Modelo = modelo;
+            Marca = marca;
         }
+
         /// <summary>
         /// Propiedad para el campo identificacon
         /// </summary>
@@ -74,5 +83,9 @@ namespace TransportesCRLib
         /// Propiedad del campo acceso
         /// </summary>
         public string Acceso { get => _acceso; set => _acceso = value; }
+        public string Placa { get => _placa; set => _placa = value; }
+        public string Modelo { get => _modelo; set => _modelo = value; }
+        public string Marca { get => _marca; set => _marca = value; }
+
     }
 }
