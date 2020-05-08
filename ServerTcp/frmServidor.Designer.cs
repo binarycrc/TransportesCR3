@@ -79,6 +79,7 @@
             this.gvViajes.Name = "gvViajes";
             this.gvViajes.Size = new System.Drawing.Size(452, 150);
             this.gvViajes.TabIndex = 1;
+            this.gvViajes.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.gvViajes_CellContentClick);
             // 
             // btnCliente
             // 
@@ -190,6 +191,7 @@
             this.btnViajesActivos.TabIndex = 7;
             this.btnViajesActivos.Text = "Viajes Activos";
             this.btnViajesActivos.UseVisualStyleBackColor = true;
+            this.btnViajesActivos.Click += new System.EventHandler(this.btnViajesActivos_Click);
             // 
             // btnValidarConductor
             // 

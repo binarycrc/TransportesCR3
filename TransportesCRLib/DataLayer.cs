@@ -636,6 +636,70 @@ namespace TransportesCRLib
             }
 
         }
+
+        public DataTable ConsultarViajes(bool soloactivos)
+        {
+            SqlCommand commandData = new SqlCommand();
+            System.Data.DataSet ds = new System.Data.DataSet();
+            DataTable dt = new DataTable();
+           
+            OpenData("query");
+            string sqlconsulta = "SELECT [Id_viaje],c.Nombre,c.UserName, [Lugar_inicio], " +
+                "[Lugar_final],[Descripcion],[Tiempoestimado],[Estado]" +
+                "FROM[dbo].[Viaje] v with(nolock), Conductor c with(nolock)" +
+                "where v.Identificacion = c.Identificacion ";
+            if (soloactivos) { sqlconsulta += " and v.Estado='ACTIVO'"; }
+            commandData = new System.Data.SqlClient.SqlCommand(sqlconsulta, sqlConnData);
+            commandData.CommandType = CommandType.Text;
+            //agregamos el parametro al query con el valor requerido
+
+            SqlDataAdapter da = new System.Data.SqlClient.SqlDataAdapter(commandData);
+            try
+            {
+                da.Fill(dt);
+            }
+            catch (Exception)
+            {
+                ds = null;
+            }
+            finally
+            {
+                da.Dispose();
+            }
+            CloseData();
+            return dt;
+        }
+        public DataTable ConsultarViajesTracking(string id_viaje)
+        {
+            SqlCommand commandData = new SqlCommand();
+            System.Data.DataSet ds = new System.Data.DataSet();
+            DataTable dt = new DataTable();
+
+            OpenData("query");
+            string sqlconsulta = "SELECT [Id_viaje],[Ubicacion],[Observaciones] FROM [dbo].[Tracking] where Id_viaje = @Id_Viaje";
+            commandData = new System.Data.SqlClient.SqlCommand(sqlconsulta, sqlConnData);
+            commandData.CommandType = CommandType.Text;
+            commandData.Parameters.Add("@Id_Viaje", System.Data.SqlDbType.VarChar, 50);
+            commandData.Parameters["@Id_Viaje"].Value = id_viaje.Trim();
+            //agregamos el parametro al query con el valor requerido
+
+            SqlDataAdapter da = new System.Data.SqlClient.SqlDataAdapter(commandData);
+            try
+            {
+                da.Fill(dt);
+            }
+            catch (Exception ex)
+            {
+                string test = ex.Message;
+                ds = null;
+            }
+            finally
+            {
+                da.Dispose();
+            }
+            CloseData();
+            return dt;
+        }
         public DataTable ConsultarConductores()
         {
             SqlCommand commandData = new SqlCommand();

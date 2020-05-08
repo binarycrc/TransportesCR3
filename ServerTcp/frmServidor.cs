@@ -1,6 +1,7 @@
 ﻿using ClienteTcp;
 using Newtonsoft.Json;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -22,8 +23,7 @@ namespace ServerTcp
         delegate void ModificartxtStatusDelegado(string mensaje);
         delegate void ModificarlblClientesConectadosDelegado(string mensaje);
 
-        List<int> listaClientes;
-        
+        List<TcpClient> listaClientes;
         TcpListener tcpListener;
         Thread subprocesoEscuchaClientes;
         int cuentaClientes;
@@ -39,7 +39,7 @@ namespace ServerTcp
         public frmServidor()
         {
             InitializeComponent();
-            listaClientes = new List<int>();
+            listaClientes = new List<TcpClient>();
             cuentaClientes = 0;
             lblClientesConectados.Text = "Clientes conectados: 0";
             btnIniciarServidor.Enabled = true;
@@ -108,7 +108,7 @@ namespace ServerTcp
                 {
                     txtStatus.Invoke(modificartxtStatus, new object[] { "Esperando por clientes..." });
                     TcpClient client = tcpListener.AcceptTcpClient();   // blocks here until client connects
-                    listaClientes.Add(client.GetHashCode());
+                    listaClientes.Add(client);
                     cuentaClientes += 1;
                     Thread clientThread = new Thread(new ParameterizedThreadStart(ComunicacionClienteB));
                     clientThread.Start(client);
@@ -167,8 +167,8 @@ namespace ServerTcp
                     txtStatus.Invoke(modificartxtStatus, new object[] { "Nuevo cliente conectado "+mensajeConectar.Valor });
                     break;
                 case "Desconectar":
-                    MensajeSocket<int> mensajeDesconectar = JsonConvert.DeserializeObject<MensajeSocket<int>>(mensajeTcp);
-                    DesconectarCliente(mensajeDesconectar.Valor, ref servidorStreamWriter);
+                    //MensajeSocket<int> mensajeDesconectar = JsonConvert.DeserializeObject<MensajeSocket<int>>(mensajeTcp);
+                    DesconectarCliente(ref servidorStreamWriter);
                     break;
                 case "Login Conductor":
                     MensajeSocket<Conductor> mensajeLoginConductor = JsonConvert.DeserializeObject<MensajeSocket<Conductor>>(mensajeTcp);
@@ -220,22 +220,21 @@ namespace ServerTcp
             }
         }
 
-        private void DesconectarCliente(int prmcliente, ref StreamWriter servidorStreamWriter)
+        private void DesconectarCliente( ref StreamWriter servidorStreamWriter)
         {
             //listaClientes.Remove(client);
             //client.Close();
             cuentaClientes -= 1;
 
-            foreach (int client in listaClientes)
-            {
-                int tesmp = client.GetHashCode();
-                if (client.GetHashCode() == prmcliente) 
-                {
-                    listaClientes.Remove(client);
-                    //client.Close();
-                    cuentaClientes -= 1;
-                }
-            }
+            //foreach (TcpClient client in listaClientes)
+            //{
+            //    int tesmp = client.GetHashCode();
+            //    if (client.GetHashCode() == prmcliente) 
+            //    {
+            //        listaClientes.Remove(client);
+            //        client.Close();
+            //    }
+            //}
 
             lblClientesConectados.Invoke(modificarlblClientesConectados, new object[] { "Clientes conectados: " + cuentaClientes.ToString() });
         }
@@ -379,11 +378,11 @@ namespace ServerTcp
 
             try
             {
-                //foreach (TcpClient client in listaClientes)
-                //{
-                //    client.Close();
-                //}
-                //listaClientes.Clear();
+                foreach (TcpClient client in listaClientes)
+                {
+                    client.Close();
+                }
+                listaClientes.Clear();
                 tcpListener.Stop();
             }
             catch (Exception)
@@ -409,41 +408,22 @@ namespace ServerTcp
                     txtStatus.SelectionStart = txtStatus.Text.Length;
                     txtStatus.ScrollToCaret();
                 }));
-                
-                //foreach (TcpClient client in listaClientes)
+
+                //Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+                //s.Connect(new IPEndPoint(local, intPort)); // whatever your broadcast port is
+                //byte[] buffer = Encoding.ASCII.GetBytes("some broadcast message");
+                //s.Send(buffer);
+
+                foreach (TcpClient client in listaClientes)
                 {
-                    //TcpClient cliente = new TcpClient();
-                    //IPEndPoint clienteEndPoint = new IPEndPoint(
-                    //    ((IPEndPoint)client.Client.RemoteEndPoint).Address,
-                    //    ((IPEndPoint)client.Client.RemoteEndPoint).Port
-                    //);
-                    //cliente.Connect(clienteEndPoint);
-                    MensajeSocket<bool> resultado = new MensajeSocket<bool>();
-                    resultado.Mensaje = "mensaje grupal";
-                    resultado.Valor = true;
-                    //StreamWriter servidorStreamWriter = new StreamWriter(client.GetStream());
-                    //servidorStreamWriter.WriteLine(JsonConvert.SerializeObject(resultado));
-                    //servidorStreamWriter.Flush();
-                    //Conductor conductor = new Conductor("", "", "", "", "", "2", "");
-                    //MensajeSocket<Conductor> mensajeConectar = new MensajeSocket<Conductor> { Mensaje = "loginconductor", Valor = conductor };
-                    //servidorStreamWriter.WriteLine(JsonConvert.SerializeObject(mensajeConectar));
-                    //servidorStreamWriter.Flush();
+                    //StreamWriter streamWriter = new StreamWriter(client.GetStream());
+                    //streamWriter.WriteLine("test");
+                    //streamWriter.Flush();
 
-                    //clienteStreamReader = new StreamReader(cliente.GetStream());
-                    //clienteStreamWriter = new StreamWriter(cliente.GetStream());
-                    //clienteStreamWriter.WriteLine(JsonConvert.SerializeObject(mensajeConectar));
-                    //clienteStreamWriter.Flush();
+                    NetworkStream stream = client.GetStream();
 
-                    //NetworkStream clienteStream = client.GetStream();
-                    //escritor = new BinaryWriter(clienteStream);
-                    //clienteStream.Flush();
-                    //escritor.Write(txtEnviarMensaje.Text);
-                    //escritor.Flush();
-
-                    //StreamWriter writer = new StreamWriter(client.GetStream());
-                    //writer.WriteLine(txtEnviarMensaje.Text);
-                    //writer.Flush();
-                    //_clientCommandTextBox.Text = string.Empty; 
+                    byte[] buffer = Encoding.ASCII.GetBytes("nomas");
+                    stream.Write(buffer, 0, buffer.Length);
                 }
 
             }
@@ -578,8 +558,49 @@ namespace ServerTcp
         {
             try
             {
-                gvConductores.DataSource = datalayer.ConsultarConductores();
-                gvConductores.Update();
+                gvViajes.DataSource = datalayer.ConsultarViajes(false);
+                gvViajes.Update();
+            }
+            catch (Exception ex)
+            {
+                txtStatus.Text += DateTime.Now.ToString("T") + "->Error:";
+                txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->" + ex.ToString();
+                txtStatus.SelectionStart = txtStatus.Text.Length;
+                txtStatus.ScrollToCaret();
+            }
+        }
+
+        private void btnViajesActivos_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                gvViajes.DataSource = datalayer.ConsultarViajes(true);
+                gvViajes.Update();
+            }
+            catch (Exception ex)
+            {
+                txtStatus.Text += DateTime.Now.ToString("T") + "->Error:";
+                txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->" + ex.ToString();
+                txtStatus.SelectionStart = txtStatus.Text.Length;
+                txtStatus.ScrollToCaret();
+            }
+        }
+
+        private void gvViajes_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            try
+            {
+                string selectedIdViaje;
+                if (gvViajes.SelectedCells.Count > 0)
+                {
+                    int selectedrowindex = gvViajes.SelectedCells[0].RowIndex;
+                    DataGridViewRow selectedRow = gvViajes.Rows[selectedrowindex];
+                    selectedIdViaje = Convert.ToString(selectedRow.Cells["Id_viaje"].Value);
+
+                    gvViajesTracking.DataSource = datalayer.ConsultarViajesTracking(selectedIdViaje);
+                    gvViajesTracking.Update();
+
+                }
             }
             catch (Exception ex)
             {
