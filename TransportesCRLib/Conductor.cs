@@ -15,9 +15,7 @@ namespace TransportesCRLib
     [Serializable]
     public class Conductor
     {
-        /// <summary> 3
-        /// Clase base para registro para tipos de empleados
-        /// </summary>
+        
         string _identificacion;
         string _nombre;
         string _papellido;
@@ -30,7 +28,7 @@ namespace TransportesCRLib
         string _marca;
 
         /// <summary>
-        /// Constructor de la clase Empleado
+        /// Constructor de la clase Conductor
         /// </summary>
         /// <param name="identificacion"></param>
         /// <param name="nombre"></param>
@@ -39,6 +37,9 @@ namespace TransportesCRLib
         /// <param name="rutaasignada"></param>
         /// <param name="username"></param>
         /// <param name="acceso"></param>
+        /// <param name="placa"></param>
+        /// <param name="modelo"></param>
+        /// <param name="marca"></param>
         public Conductor(string identificacion, string nombre, string papellido, string sapellido, string rutaasignada, string username, string acceso
             , string placa, string modelo, string marca)
         {
@@ -58,6 +59,7 @@ namespace TransportesCRLib
         /// Propiedad para el campo identificacon
         /// </summary>
         public string Identificacion { get => _identificacion; set => _identificacion = value; }
+
         /// <summary>
         /// Propiedad para el campo nombre
         /// </summary>
@@ -67,24 +69,40 @@ namespace TransportesCRLib
         /// Propiedad para el cambpo primer apellido
         /// </summary>
         public string PApellido { get => _papellido;  set => _papellido = value; }
+
         /// <summary>
         /// Propiedad para el campo segundo apellido
         /// </summary>
         public string SApellido { get => _sapellido; set => _sapellido = value; } 
+
         /// <summary>
         /// Propiedad del campo ruta
         /// </summary>
         public string Ruta { get => _ruta;  set => _ruta = value; } 
+
         /// <summary>
         /// Propiedad del campo user_name
         /// </summary>
         public string UserName { get => _username; set => _username = value; } 
+
         /// <summary>
         /// Propiedad del campo acceso
         /// </summary>
         public string Acceso { get => _acceso; set => _acceso = value; }
+        
+        /// <summary>
+        /// Propiedad del campo Placa
+        /// </summary>
         public string Placa { get => _placa; set => _placa = value; }
+        
+        /// <summary>
+        /// Propiedad del campo Modelo
+        /// </summary>
         public string Modelo { get => _modelo; set => _modelo = value; }
+        
+        /// <summary>
+        /// Propiedad del campo Marca
+        /// </summary>
         public string Marca { get => _marca; set => _marca = value; }
 
     }

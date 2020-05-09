@@ -21,23 +21,17 @@ namespace TransportesCRLib
         string _placa;
         string _modelo;
         string _marca;
-        string _capacidadkilos;
-        string _capacidadvolumen;
         /// <summary>
         /// Constructor de la clase Camion
         /// </summary>
         /// <param name="placa"></param>
         /// <param name="modelo"></param>
         /// <param name="marca"></param>
-        /// <param name="capacidadkilos"></param>
-        /// <param name="capacidadvolumen"></param>
-        public Camion(string placa, string modelo, string marca, string capacidadkilos, string capacidadvolumen)
+        public Camion(string placa, string modelo, string marca)
         {
             _placa = placa;
             _modelo = modelo;
             _marca = marca;
-            _capacidadkilos = capacidadkilos;
-            _capacidadvolumen = capacidadvolumen;
         }
 
         /// <summary>
@@ -52,13 +46,5 @@ namespace TransportesCRLib
         /// Propiedad para el campo Marca
         /// </summary>
         public string Marca { get { return _marca; } set { _marca = value; } }
-        /// <summary>
-        /// Propiedad del campo capacidad de kilos 
-        /// </summary>
-        public string capacidadkilos { get { return _capacidadkilos; } set { _capacidadkilos = value; } }
-        /// <summary>
-        /// Propiedad del campo capacidad de volumen
-        /// </summary>
-        public string capacidadvolumen { get { return _capacidadvolumen; } set { _capacidadvolumen = value; } }
     }
 }

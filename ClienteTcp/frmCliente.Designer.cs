@@ -82,6 +82,8 @@
             this.tabTrash = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.txtEnviarMensaje = new System.Windows.Forms.TextBox();
+            this.btnEnviarMensaje = new System.Windows.Forms.Button();
             this.tabMain.SuspendLayout();
             this.tabIngreso.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -599,6 +601,8 @@
             // 
             // gbViajePendiente
             // 
+            this.gbViajePendiente.Controls.Add(this.btnEnviarMensaje);
+            this.gbViajePendiente.Controls.Add(this.txtEnviarMensaje);
             this.gbViajePendiente.Controls.Add(this.lblGUIDActivo);
             this.gbViajePendiente.Controls.Add(this.btnFinalizarViaje);
             this.gbViajePendiente.Controls.Add(this.txtObservaciones);
@@ -755,6 +759,24 @@
             this.tabPage2.Text = "tabPage2";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
+            // txtEnviarMensaje
+            // 
+            this.txtEnviarMensaje.Location = new System.Drawing.Point(6, 116);
+            this.txtEnviarMensaje.Multiline = true;
+            this.txtEnviarMensaje.Name = "txtEnviarMensaje";
+            this.txtEnviarMensaje.Size = new System.Drawing.Size(365, 76);
+            this.txtEnviarMensaje.TabIndex = 12;
+            // 
+            // btnEnviarMensaje
+            // 
+            this.btnEnviarMensaje.Location = new System.Drawing.Point(384, 160);
+            this.btnEnviarMensaje.Name = "btnEnviarMensaje";
+            this.btnEnviarMensaje.Size = new System.Drawing.Size(106, 32);
+            this.btnEnviarMensaje.TabIndex = 13;
+            this.btnEnviarMensaje.Text = "Enviar Notificacion";
+            this.btnEnviarMensaje.UseVisualStyleBackColor = true;
+            this.btnEnviarMensaje.Click += new System.EventHandler(this.btnEnviarMensaje_Click);
+            // 
             // frmCliente
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -849,6 +871,8 @@
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.Label lblGUIDActivo;
+        private System.Windows.Forms.Button btnEnviarMensaje;
+        private System.Windows.Forms.TextBox txtEnviarMensaje;
     }
 }
 

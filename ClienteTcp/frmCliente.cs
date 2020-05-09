@@ -25,6 +25,12 @@ namespace ClienteTcp
         private static StreamWriter clienteStreamWriter;
         private static StreamReader clienteStreamReader;
 
+        //TcpListener tcpListener;
+        //Thread n_client;
+        //private Socket socket;
+        //byte[] bufferReceive = new byte[4096];
+        //byte[] bufferSend = new byte[4096];
+
         private TcpClient cliente;
         //private BinaryWriter escritor;
         //private BinaryReader lector;
@@ -145,7 +151,6 @@ namespace ClienteTcp
                 throw;
             }
         }
-
         private void btnSalir_Click(object sender, EventArgs e)
         {
             try
@@ -168,8 +173,8 @@ namespace ClienteTcp
 
                 //throw;
             }
-        }
 
+        }
         private void linkRegistrarse_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             try
@@ -203,7 +208,6 @@ namespace ClienteTcp
                 lblMensaje.Text = ex.Message;
             }
         }
-
         private void btnRegistroConductor_Click(object sender, EventArgs e)
         {
             string test = "";
@@ -243,13 +247,6 @@ namespace ClienteTcp
                         tabIngreso.Parent = tabMain;
                         
                         tabRegistroConductor.Parent = tabTrash;
-                        //tabIngresoViajes.Invoke(new MethodInvoker(delegate {
-                            
-                        //}));
-
-                        //tabIngreso.Invoke(new MethodInvoker(delegate {
-                            
-                        //}));
                     }
                     else
                     {
@@ -361,7 +358,6 @@ namespace ClienteTcp
                 txtStatus.ScrollToCaret();
             }
         }
-
         private void btnConectarCliente_Click(object sender, EventArgs e)
         {
             try
@@ -389,6 +385,9 @@ namespace ClienteTcp
                 linkRegistrarse.Enabled = true;
                 btnRegistroConductor.Enabled = true;
 
+                //n_client = new Thread(new ThreadStart(EscuchaBroadcast));
+                //n_client.IsBackground = true;
+                //n_client.Start();
 
             }
             catch (Exception ex)
@@ -397,7 +396,34 @@ namespace ClienteTcp
                 txtStatus.Text += "\r\n" + ex.ToString();
             }
         }
+        //private void EscuchaBroadcast() 
+        //{
 
+        //    tcpListener = new TcpListener(IPAddress.Any, 16831);
+        //    tcpListener.Start();
+        //    try
+        //    {
+        //        socket = tcpListener.AcceptSocket();
+        //        if (socket.Connected)
+        //        {
+        //            //textBox3.Invoke((MethodInvoker)delegate { textBox3.Text = "Client        : " + socket.RemoteEndPoint.ToString(); });
+        //        }
+        //        while (true)
+        //        {
+        //            int length = socket.Receive(bufferReceive);
+        //            if (length > 0)
+        //            {
+        //                txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> " + Encoding.Unicode.GetString(bufferReceive);
+        //                txtStatus.SelectionStart = txtStatus.Text.Length;
+        //                txtStatus.ScrollToCaret();
+        //            }
+        //        }
+        //    }
+        //    catch
+        //    {
+        //    }
+        //}
+    
         private void EscuchaClientes(object cliente)
         {
             //TcpClient client = (TcpClient)cliente;
@@ -757,6 +783,26 @@ namespace ClienteTcp
         private void frmCliente_FormClosing(object sender, FormClosingEventArgs e)
         {
 
+        }
+
+        private void btnEnviarMensaje_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                MensajeSocket<string> mensajeNoticacion = new MensajeSocket<string> { 
+                    Mensaje = "Notificacion de Cliente"
+                    , Valor = " Usuario: " + txtUsuario.Text + " - " +txtEnviarMensaje.Text.Trim() };
+
+                clienteStreamReader = new StreamReader(cliente.GetStream());
+                clienteStreamWriter = new StreamWriter(cliente.GetStream());
+                clienteStreamWriter.WriteLine(JsonConvert.SerializeObject(mensajeNoticacion));
+                clienteStreamWriter.Flush();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
     }
 }

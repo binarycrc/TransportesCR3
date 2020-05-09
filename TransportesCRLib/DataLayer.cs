@@ -488,7 +488,6 @@ namespace TransportesCRLib
             }
             return retorno; //retornamos el valor de true si todo salio bien
         }
-        
         public Conductor getConductorActivo(string UserName)
         {
             Conductor retornoconductor=null;
@@ -537,7 +536,6 @@ namespace TransportesCRLib
             }
             
         }
-
         public Viaje getViajeActivoConductor(string UserName)
         {
             Viaje retornoviaje=null;
@@ -636,7 +634,6 @@ namespace TransportesCRLib
             }
 
         }
-
         public DataTable ConsultarViajes(bool soloactivos)
         {
             SqlCommand commandData = new SqlCommand();
