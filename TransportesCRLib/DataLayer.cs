@@ -21,7 +21,7 @@ namespace TransportesCRLib
         public static SqlConnection sqlConnData = new SqlConnection(); //connector a la base de datos
         public string _LatestError = ""; //campo publico para mostrar mensajes de la clase
         public static string _ServerDataSource = "BINARYCRCD2"; //campo para el datasourse usado en la coneccion a la base de datos
-        public static string _ServerInitialCatalog = "TransportesCR3"; //campo para el catalogo/base de datos usado en la coneccion
+        public static string _ServerInitialCatalog = "x"; //campo para el catalogo/base de datos usado en la coneccion
         //String de coneccion a la base de datos con los valores por defecto
         public static string _DBConnectionString = "Data Source=" + _ServerDataSource + ";Initial Catalog=" + _ServerInitialCatalog + ";Trusted_Connection=yes;";
         #endregion //Definicion de variables
@@ -206,6 +206,11 @@ namespace TransportesCRLib
             }
         }
 
+        /// <summary>
+        /// Metodo para consultar si un usuario tiene acceso de Conductor
+        /// </summary>
+        /// <param name="conductor"></param>
+        /// <returns>Retorna una cadena de caracteres OKUsuarioAcceso si el resultado es favorable</returns>
         public string UsuarioAcceso(Conductor conductor)
         {
             string retorno = "";
@@ -242,6 +247,12 @@ namespace TransportesCRLib
             }
             return retorno; //retornamos el valor de true si todo salio bien
         }
+
+        /// <summary>
+        /// Metodo para consultar si existe un usuario de un Conductor
+        /// </summary>
+        /// <param name="UserName"></param>
+        /// <returns>Retorna true si el resultado es favorable</returns>
         public bool ExisteUsuario(string UserName)
         {
             SqlCommand commandData = new SqlCommand();
@@ -277,6 +288,11 @@ namespace TransportesCRLib
             }
         }
 
+        /// <summary>
+        /// Metodo para consultar el estado de un Conductor
+        /// </summary>
+        /// <param name="Identificacion"></param>
+        /// <returns>Retorna true si el resultado es favorable</returns>
         public bool ConductorActivo(string Identificacion)
         {
             SqlCommand commandData = new SqlCommand();
@@ -311,6 +327,12 @@ namespace TransportesCRLib
                 return false; //retornamos el valor false
             }
         }
+
+        /// <summary>
+        /// Metodo para insertar un Conductor y su respectivo Camion
+        /// </summary>
+        /// <param name="conductor"></param>
+        /// <returns>Retorna una cadena de caracteres OKViaje si el resultado es favorable</returns>
         public string RegistrarConductorCamion(Conductor conductor)
         {
             string retorno = "";
@@ -378,6 +400,11 @@ namespace TransportesCRLib
             return retorno; //retornamos el valor de true si todo salio bien
         }
 
+        /// <summary>
+        /// Metodo para insertar un viaje nuevo 
+        /// </summary>
+        /// <param name="viaje"></param>
+        /// <returns>Retorna una cadena de caracteres OKViaje si el resultado es favorable</returns>
         public string RegistrarViaje(Viaje viaje)
         {
             string retorno = "";
@@ -428,6 +455,12 @@ namespace TransportesCRLib
             }
             return retorno; //retornamos el valor de true si todo salio bien
         }
+
+        /// <summary>
+        /// Metodo para insertar un tracking de un viaje
+        /// </summary>
+        /// <param name="tracking"></param>
+        /// <returns>Retorna una cadena de caracteres OKTracking si el resultado es favorable </returns>
         public string RegistrarTracking(Tracking tracking)
         {
             string retorno = "";
@@ -461,6 +494,12 @@ namespace TransportesCRLib
             }
             return retorno; //retornamos el valor de true si todo salio bien
         }
+
+        /// <summary>
+        /// Metodo para actualizar el estado de un viaje
+        /// </summary>
+        /// <param name="Id_viaje"></param>
+        /// <returns>Retorna una cadena de caracteres OKViajeActualizacion si el resultado es favorable </returns>
         public string RegistrarViajeFinalizado(string Id_viaje)
         {
             string retorno = "";
@@ -488,54 +527,12 @@ namespace TransportesCRLib
             }
             return retorno; //retornamos el valor de true si todo salio bien
         }
-        public Conductor getConductorActivo(string UserName)
-        {
-            Conductor retornoconductor=null;
-            SqlCommand commandData = new SqlCommand();
-            SqlDataReader reader;
-            try
-            {
-                OpenData("query"); //abrimos la coneccion a la base de datos
-                commandData = new System.Data.SqlClient.SqlCommand("SELECT [Identificacion]" +
-                    ",[Nombre],[PrimerApeliido],[SegundoApellido],[RutaAsignada],[UserName],[Acceso]" +
-                    "FROM[dbo].[Conductor] where UserName = @UserName", sqlConnData);
-                commandData.CommandType = CommandType.Text;
-                //agregamos el parametro al query con el valor requerido
-                commandData.Parameters.Add("@UserName", System.Data.SqlDbType.VarChar, 10);
-                commandData.Parameters["@UserName"].Value = UserName.Trim();
-                reader = commandData.ExecuteReader(); //cargamos el resultado del query al reader
-                if (reader.HasRows) //si existen registros
-                {
-                    Conductor conductor = new Conductor(
-                        reader["Identificacion"].ToString()
-                        , reader["Nombre"].ToString()
-                        , reader["PrimerApeliido"].ToString()
-                        , reader["SegundoApellido"].ToString()
-                        , reader["RutaAsignada"].ToString()
-                        , reader["UserName"].ToString()
-                        , reader["Acceso"].ToString()
-                        , "","",""
-                        );
-                    reader.Close(); //cerramos el reader
-                    CloseData();// si se logro abrir entonces la cerramos
-                    //return true; // retornamos el valor de true
-                    return conductor;
-                }
-                else
-                {
-                    reader.Close(); //cerramos el reader
-                    CloseData(); //cerramos la coneccion a la base de datos
-                    return retornoconductor;
-                }
-            }
-            catch (Exception ex)
-            {
-                _LatestError = ex.Message;//si existe algun error se muestra un mensaje
-                CloseData(); //cerramos la base de datos
-                return retornoconductor;
-            }
-            
-        }
+        
+        /// <summary>
+        /// Metodo para consultar el viaje activo por conductor
+        /// </summary>
+        /// <param name="Identificacion"></param>
+        /// <returns>Retorna una instancia de tipo Viaje</returns>
         public Viaje getViajeActivoConductor(string UserName)
         {
             Viaje retornoviaje=null;
@@ -587,53 +584,12 @@ namespace TransportesCRLib
             }
 
         }
-        public Viaje getViajeActivo(string Identificacion)
-        {
-            Viaje retornoviaje = null;
-            SqlCommand commandData = new SqlCommand();
-            SqlDataReader reader;
-            try
-            {
-                OpenData("query"); //abrimos la coneccion a la base de datos
-                commandData = new System.Data.SqlClient.SqlCommand("SELECT [Id_viaje]" +
-                    ",[Lugar_inicio],[Lugar_final],[Descripcion],[Tiempoestimado],[Identificacion],[Estado]" +
-                    "FROM[dbo].[Viaje] where Identificacion = @Identificacion and Estado='ACTIVO' ", sqlConnData);
-                commandData.CommandType = CommandType.Text;
-                //agregamos el parametro al query con el valor requerido
-                commandData.Parameters.Add("@Identificacion", System.Data.SqlDbType.VarChar, 10);
-                commandData.Parameters["@Identificacion"].Value = Identificacion.Trim();
-                reader = commandData.ExecuteReader(); //cargamos el resultado del query al reader
-                if (reader.HasRows) //si existen registros
-                {
-                    Viaje viaje = new Viaje(
-                        reader["Id_viaje"].ToString()
-                        , reader["Lugar_inicio"].ToString()
-                        , reader["Lugar_final"].ToString()
-                        , reader["Descripcion"].ToString()
-                        , reader["Tiempoestimado"].ToString()
-                        , reader["Identificacion"].ToString()
-                        , reader["Estado"].ToString()
-                        );
-                    reader.Close(); //cerramos el reader
-                    CloseData();// si se logro abrir entonces la cerramos
-                    //return true; // retornamos el valor de true
-                    return viaje;
-                }
-                else
-                {
-                    reader.Close(); //cerramos el reader
-                    CloseData(); //cerramos la coneccion a la base de datos
-                    return retornoviaje;
-                }
-            }
-            catch (Exception ex)
-            {
-                _LatestError = ex.Message;//si existe algun error se muestra un mensaje
-                CloseData(); //cerramos la base de datos
-                return retornoviaje;
-            }
-
-        }
+        
+        /// <summary>
+        /// Metodo de consulta de todos los viajes por estado
+        /// </summary>
+        /// <param name="soloactivos"></param>
+        /// <returns>Retorna un DataTable con todos los registros</returns>
         public DataTable ConsultarViajes(bool soloactivos)
         {
             SqlCommand commandData = new SqlCommand();
@@ -666,6 +622,12 @@ namespace TransportesCRLib
             CloseData();
             return dt;
         }
+        
+        /// <summary>
+        /// Metodo para consulta del historial de un viaje especifico
+        /// </summary>
+        /// <param name="id_viaje"></param>
+        /// <returns>Retorna un DataTable con todos los registros</returns>
         public DataTable ConsultarViajesTracking(string id_viaje)
         {
             SqlCommand commandData = new SqlCommand();
@@ -697,6 +659,11 @@ namespace TransportesCRLib
             CloseData();
             return dt;
         }
+        
+        /// <summary>
+        /// Metodo que consulta todos los Conductores 
+        /// </summary>
+        /// <returns>Retorna un DataTable con todos los Conductores</returns>
         public DataTable ConsultarConductores()
         {
             SqlCommand commandData = new SqlCommand();
@@ -707,8 +674,6 @@ namespace TransportesCRLib
 
             commandData = new System.Data.SqlClient.SqlCommand(sqlconsulta, sqlConnData);
             commandData.CommandType = CommandType.Text;
-            //agregamos el parametro al query con el valor requerido
-
             SqlDataAdapter da = new System.Data.SqlClient.SqlDataAdapter(commandData);
             try
             {
@@ -726,6 +691,12 @@ namespace TransportesCRLib
             return dt;
         }
 
+        /// <summary>
+        /// Metodo para cambiar el estado de un Conductor
+        /// </summary>
+        /// <param name="Identificacion"></param>
+        /// <param name="Acceso"></param>
+        /// <returns>Retorna Ok si pudo realizar el cambio de Acceso del conductor</returns>
         public string ValidarConductor(string Identificacion, string Acceso)
         {
             SqlCommand commandData = new SqlCommand();
@@ -750,7 +721,7 @@ namespace TransportesCRLib
                 }
                 else
                 {
-                    return "ExistenteAlumno"; //retornamos el valor de false si el conductor ya existe
+                    return "NoExisteConductor"; //retornamos el valor de false si el conductor ya existe
                 }
             }
             catch (Exception ex)
@@ -763,10 +734,10 @@ namespace TransportesCRLib
 
         #region "Camion"
         /// <summary>
-        /// Metodo para validar que exista un conductor
+        /// Metodo para validar que exista un Camion
         /// </summary>
         /// <param name="prmIdentificacion"></param>
-        /// <returns></returns>
+        /// <returns>Retorna true si encuentra coincidencias</returns>
         public bool ExisteCamion(string prmPlaca)
         {
             SqlCommand commandData = new SqlCommand();
@@ -801,53 +772,6 @@ namespace TransportesCRLib
                 return false;//retornamos el valor false
             }
 
-        }
-        /// <summary>
-        /// Metodo para guardar la clase camion en la base de datos
-        /// </summary>
-        /// <param name="conductor"></param>
-        /// <returns></returns>
-        public bool GuardaCamion(Camion camion)
-        {
-            SqlCommand commandData = new SqlCommand();
-            try
-            {
-                //query para insertar camion
-                commandData = new System.Data.SqlClient.SqlCommand("INSERT INTO [Camion]([Placa],[AnnoModelo],[Marca],[CapacidadKG],[CapacidadVl])" +
-                    "VALUES(@Placa,@AnnoModelo,@Marca,@CapacidadKG,@CapacidadVl)", sqlConnData);
-                commandData.CommandType = CommandType.Text;
-                //agregamos los parametros al query con el valor requerido
-                commandData.Parameters.Add("@Placa", System.Data.SqlDbType.VarChar, 8);
-                commandData.Parameters["@Placa"].Value = camion.Placa.Trim();
-                commandData.Parameters.Add("@AnnoModelo", System.Data.SqlDbType.VarChar, 4);
-                commandData.Parameters["@AnnoModelo"].Value = camion.Modelo.Trim();
-                commandData.Parameters.Add("@Marca", System.Data.SqlDbType.VarChar, 50);
-                commandData.Parameters["@Marca"].Value = camion.Marca.Trim();
-                commandData.Parameters.Add("@CapacidadKG", System.Data.SqlDbType.Decimal);
-                commandData.Parameters["@CapacidadKG"].Value = Convert.ToDecimal(camion.capacidadkilos.Trim());
-                commandData.Parameters.Add("@CapacidadVl", System.Data.SqlDbType.Decimal);
-                commandData.Parameters["@CapacidadVl"].Value = Convert.ToDecimal(camion.capacidadvolumen.Trim());
-
-                if (ExisteCamion(camion.Placa) == false)//buscamos si existe el camion
-                {
-                    OpenData("query");//abrimos la base de datos
-                    commandData.ExecuteNonQuery();//ejecutamos el query en la base de datos con todos los parametros
-                    CloseData();// cerramos la coneccion a la base de datos
-                    _LatestError = "Camion " + camion.Placa.Trim() + " agregado satisfactoriamente.";
-                    return true;//retornamos el valor de true si todo salio bien
-                }
-                else
-                {
-                    _LatestError = "Camion ya existe";
-                    return false;//retornamos el valor de false si el conductor ya existe
-                }
-            }
-            catch (Exception ex)
-            {
-                _LatestError = ex.Message;//si existe algun error se muestra un mensaje
-                CloseData();// cerramos la coneccion a la base de datos
-                return false;// retornamos el valor de false si hay algun error
-            }
         }
         #endregion //"Camion"
 

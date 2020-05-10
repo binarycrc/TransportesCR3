@@ -20,31 +20,36 @@ namespace ServerTcp
 {
     public partial class frmServidor : Form
     {
+        /// <summary>
+        /// Declaracion de los delegados para los objetos
+        /// que despliegan datos
+        /// </summary>
+        /// <param name="mensaje"></param>
         delegate void ModificartxtStatusDelegado(string mensaje);
         delegate void ModificarlblClientesConectadosDelegado(string mensaje);
-
-        List<TcpClient> listaClientes;
-        TcpListener tcpListener;
-        Thread subprocesoEscuchaClientes;
-        int cuentaClientes;
-        bool continuar;
-        IPAddress local = IPAddress.Parse("127.0.0.1");
-        int intPort = 16830;
-
-        private Socket socket;
-        byte[] bufferReceive = new byte[4096];
-        byte[] bufferSend = new byte[4096];
-
-        DataLayer datalayer = new DataLayer();
-
         ModificartxtStatusDelegado modificartxtStatus;
         ModificarlblClientesConectadosDelegado modificarlblClientesConectados;
 
-        // lblClientesConectados.Invoke(modificarlblClientesConectados, new object[] { "Clientes conectados: " + cuentaClientes.ToString()});
-        // txtStatus.Invoke(modificartxtStatus, new object[] { "->Nuevo cliente conectado " });
+        /// <summary>
+        /// Declaracion de variables globales
+        /// </summary>
+        private List<TcpClient> listaClientes;
+        private TcpListener tcpListener;
+        private Thread subprocesoEscuchaClientes;
+        private int cuentaClientes;
+        private bool continuar;
+        IPAddress local = IPAddress.Parse("127.0.0.1");
+        int intPort = 16830;
+
+        /// <summary>
+        /// Creamos una instancia de la clase DataLayer
+        /// </summary>
+        DataLayer datalayer = new DataLayer();
+
         public frmServidor()
         {
             InitializeComponent();
+            /// Inicializamos todos los componentes
             listaClientes = new List<TcpClient>();
             cuentaClientes = 0;
             lblClientesConectados.Text = "Clientes conectados: 0";
@@ -56,12 +61,22 @@ namespace ServerTcp
             modificartxtStatus = new ModificartxtStatusDelegado(ModificartxtStatus);
             modificarlblClientesConectados = new ModificarlblClientesConectadosDelegado(ModificarlblClientesConectados);
         }
+
+        /// <summary>
+        /// Metodo del delegado para modificar el txtStatus
+        /// </summary>
+        /// <param name="mensaje"></param>
         private void ModificartxtStatus(string mensaje) 
         {
             txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> " +mensaje;
             txtStatus.SelectionStart = txtStatus.Text.Length;
             txtStatus.ScrollToCaret();
         }
+
+        /// <summary>
+        /// Metodo del delegado para modificar el label mostrando la cantidad de clientes conectados
+        /// </summary>
+        /// <param name="mensaje"></param>
         private void ModificarlblClientesConectados(string mensaje)
         {
             lblClientesConectados.Text = mensaje;
@@ -71,54 +86,46 @@ namespace ServerTcp
         {
             try
             {
+                /// Inicializamos los componentes y variables
                 lblClientesConectados.Text = "Clientes conectados: 0";
                 cuentaClientes = 0;
                 listaClientes.Clear();
 
-                txtStatus.Text += DateTime.Now.ToString("T") + "->Servidor iniciando en (" + local.ToString() +":"+ intPort.ToString() + ") ";
-                txtStatus.SelectionStart = txtStatus.Text.Length;
-                txtStatus.ScrollToCaret();
+                txtStatus.Invoke(modificartxtStatus, new object[] { "Servidor iniciando en (" + local.ToString() + ":" + intPort.ToString() + ") " });
 
                 btnIniciarServidor.Enabled = false;
                 btnDetenerServidor.Enabled = true;
                 btnCliente.Enabled = true;
                 btnEnviarMensajeGrupal.Enabled = true;
 
+                /// Levantamos el servidor TCP\IP
                 continuar = true;
                 tcpListener = new TcpListener(local, intPort);
                 subprocesoEscuchaClientes = new Thread(new ThreadStart(EscuchaClientes));
-                //subprocesoEscuchaClientes.Name = "Servidor Listener Thread";
                 subprocesoEscuchaClientes.Start();
                 subprocesoEscuchaClientes.IsBackground = true;
-
-
-                
             }
             catch (Exception ex)
             {
-                txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->Problem starting server.";
-                txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->" +ex.ToString();
-                txtStatus.SelectionStart = txtStatus.Text.Length;
-                txtStatus.ScrollToCaret();
+                txtStatus.Invoke(modificartxtStatus, new object[] { "Problem starting server." });
+                txtStatus.Invoke(modificartxtStatus, new object[] { ex.ToString() });
             }
         }
 
-        
-        
-
+        /// <summary>
+        /// Metodo relacionado al thread del servidor
+        /// </summary>
         private void EscuchaClientes()
         {
             try
             {
-                //continuar = true;
-                //tcpListener = new TcpListener(local, intPort);
                 tcpListener.Start();
                 txtStatus.Invoke(modificartxtStatus, new object[] { "Server iniciado. escuchando en :" + local.ToString() + ":" + intPort.ToString() + ") " });
 
                 while (continuar)
                 {
                     txtStatus.Invoke(modificartxtStatus, new object[] { "Esperando por clientes..." });
-                    TcpClient client = tcpListener.AcceptTcpClient();   // blocks here until client connects
+                    TcpClient client = tcpListener.AcceptTcpClient();   // se bloquea esperando nuevas conecciones
                     listaClientes.Add(client);
                     cuentaClientes += 1;
                     Thread clientThread = new Thread(new ParameterizedThreadStart(ComunicacionClienteB));
@@ -130,9 +137,7 @@ namespace ServerTcp
             }
             catch (SocketException )
             {
-                // swallow this one exception
-                // _statusTextBox.InvokeEx(stb => stb.Text += CRLF + "Problem starting the server.");
-                // _statusTextBox.InvokeEx(stb => stb.Text += CRLF + se.ToString());
+                txtStatus.Invoke(modificartxtStatus, new object[] { "Problem starting server." });
             }
             catch (Exception ex)
             {
@@ -141,8 +146,12 @@ namespace ServerTcp
             }
             txtStatus.Invoke(modificartxtStatus, new object[] { "**Terminando el listener y thread**" });
             txtStatus.Invoke(modificartxtStatus, new object[] { " " });
-        } // end ListenForIncomingConnections() method
+        } 
 
+        /// <summary>
+        /// Metodo para procesar la comunicacion con los clientes conectados
+        /// </summary>
+        /// <param name="obj"></param>
         private void ComunicacionClienteB(object obj)
         {  
             TcpClient tcpClient = (TcpClient)obj;
@@ -168,6 +177,12 @@ namespace ServerTcp
             tcpClient.Close();
         }
 
+        /// <summary>
+        /// Metodo para identificar los procesos solicitados por los clientes
+        /// </summary>
+        /// <param name="accion"></param>
+        /// <param name="mensajeTcp"></param>
+        /// <param name="servidorStreamWriter"></param>
         private void SeleccionarMetodo(string accion, string mensajeTcp, ref StreamWriter servidorStreamWriter)
         {
             switch (accion)
@@ -178,7 +193,6 @@ namespace ServerTcp
                     txtStatus.Invoke(modificartxtStatus, new object[] { "Nuevo cliente conectado "+mensajeConectar.Valor });
                     break;
                 case "Desconectar":
-                    //MensajeSocket<int> mensajeDesconectar = JsonConvert.DeserializeObject<MensajeSocket<int>>(mensajeTcp);
                     DesconectarCliente(ref servidorStreamWriter);
                     break;
                 case "Login Conductor":
@@ -208,7 +222,6 @@ namespace ServerTcp
                     MensajeSocket<Conductor> mensajeViajeActivoConductor = JsonConvert.DeserializeObject<MensajeSocket<Conductor>>(mensajeTcp);
                     Conductor conductorViajeActivo = mensajeViajeActivoConductor.Valor;
                     ObtenerViajes(conductorViajeActivo.UserName, ref servidorStreamWriter);
-                    //txtStatus.Invoke(modificartxtStatus, new object[] { "Viaje Activo: " + conductorViajeActivo.Identificacion });
                     break;
                 case "Finalizar Viaje":
                     MensajeSocket<Viaje> mensajeFinalizarViaje = JsonConvert.DeserializeObject<MensajeSocket<Viaje>>(mensajeTcp);
@@ -221,7 +234,7 @@ namespace ServerTcp
                     txtStatus.Invoke(modificartxtStatus, new object[] { "/***** Notificación de Cliente: ******/"});
                     txtStatus.Invoke(modificartxtStatus, new object[] { mensajeNotificacion.Valor });
                     break;
-                default:  // default case acts as echo server
+                default:  
                     {
                         MensajeSocket<string> mensajeDefault = JsonConvert.DeserializeObject<MensajeSocket<string>>(mensajeTcp);
                         txtStatus.Invoke(modificartxtStatus, new object[] { mensajeDefault.Valor });
@@ -230,22 +243,25 @@ namespace ServerTcp
             }
         }
 
+        /// <summary>
+        /// Metodo para cambiar la cantidad de clientes
+        /// </summary>
+        /// <param name="servidorStreamWriter"></param>
         private void DesconectarCliente( ref StreamWriter servidorStreamWriter)
         {
-            //listaClientes.Remove(client);
-            //client.Close();
             cuentaClientes -= 1;
-
-            
-
             lblClientesConectados.Invoke(modificarlblClientesConectados, new object[] { "Clientes conectados: " + cuentaClientes.ToString() });
         }
 
+        /// <summary>
+        /// Metodo para cambiar el estado de un viaje activo
+        /// </summary>
+        /// <param name="viaje"></param>
+        /// <param name="servidorStreamWriter"></param>
         private void FinalizarViaje(Viaje viaje, ref StreamWriter servidorStreamWriter)
         {
             MensajeSocket<bool> resultado = new MensajeSocket<bool>();
             string resultadoFinalizarViaje = datalayer.RegistrarViajeFinalizado(viaje.Id_viaje);
-            //if (DatosRegistroConductor(conductor))
             if (resultadoFinalizarViaje == "OKViajeActualizacion")
             {
                 resultado.Mensaje = "Viaje finalizado!";
@@ -260,11 +276,15 @@ namespace ServerTcp
             servidorStreamWriter.Flush();
         }
 
+        /// <summary>
+        /// Metodo para insertar un registro al historial del viaje
+        /// </summary>
+        /// <param name="tracking"></param>
+        /// <param name="servidorStreamWriter"></param>
         private void RegistroTracking(Tracking tracking, ref StreamWriter servidorStreamWriter)
         {
             MensajeSocket<bool> resultado = new MensajeSocket<bool>();
             string resultadoRegistrarTracking = datalayer.RegistrarTracking(tracking);
-            //if (DatosRegistroConductor(conductor))
             if (resultadoRegistrarTracking == "OKTracking")
             {
                 resultado.Mensaje = "Tracking creado!";
@@ -279,11 +299,15 @@ namespace ServerTcp
             servidorStreamWriter.Flush();
         }
 
+        /// <summary>
+        /// Metodo para ingresar un viaje 
+        /// </summary>
+        /// <param name="viaje"></param>
+        /// <param name="servidorStreamWriter"></param>
         private void RegistroViaje(Viaje viaje, ref StreamWriter servidorStreamWriter)
         {
             MensajeSocket<bool> resultado = new MensajeSocket<bool>();
             string resultadoRegistrarViaje = datalayer.RegistrarViaje(viaje);
-            //if (DatosRegistroConductor(conductor))
             if (resultadoRegistrarViaje == "OKViaje")
             {
                 resultado.Mensaje = "Viaje creados!";
@@ -298,11 +322,15 @@ namespace ServerTcp
             servidorStreamWriter.Flush();
         }
 
+        /// <summary>
+        /// Metodo para ingresar un Conductor y Camion
+        /// </summary>
+        /// <param name="conductor"></param>
+        /// <param name="servidorStreamWriter"></param>
         private void RegistroConductor(Conductor conductor, ref StreamWriter servidorStreamWriter)
         {
             MensajeSocket<bool> resultado = new MensajeSocket<bool>();
             string resultadoRegistrarConductor = datalayer.RegistrarConductorCamion(conductor);
-            //if (DatosRegistroConductor(conductor))
             if (resultadoRegistrarConductor== "OKConductor")
             {
                 resultado.Mensaje = "Conductor y camion creados!";
@@ -317,6 +345,11 @@ namespace ServerTcp
             servidorStreamWriter.Flush();
         }
 
+        /// <summary>
+        /// Metodo para procesar una nueva coneccion de clientes
+        /// </summary>
+        /// <param name="valor"></param>
+        /// <param name="servidorStreamWriter"></param>
         private void ConectarCliente(string valor, ref StreamWriter servidorStreamWriter)
         {
             MensajeSocket<bool> resultado = new MensajeSocket<bool>();
@@ -325,6 +358,12 @@ namespace ServerTcp
             servidorStreamWriter.WriteLine(JsonConvert.SerializeObject(resultado));
             servidorStreamWriter.Flush();
         }
+
+        /// <summary>
+        /// Metodo para consultar por el viaje activo de un conductor
+        /// </summary>
+        /// <param name="userName"></param>
+        /// <param name="servidorStreamWriter"></param>
         private void ObtenerViajes(string userName, ref StreamWriter servidorStreamWriter)
         {
             MensajeSocket<Viaje> resultado = new MensajeSocket<Viaje>();
@@ -336,13 +375,19 @@ namespace ServerTcp
             }
             else
             {
-                resultado.Mensaje = "No tiene viajes activos"; // + viajeActivo.Id_viaje;
+                resultado.Mensaje = "No tiene viajes activos"; 
                 resultado.Valor = null;
             }
             servidorStreamWriter.WriteLine(JsonConvert.SerializeObject(resultado));
             servidorStreamWriter.Flush();
             txtStatus.Invoke(modificartxtStatus, new object[] { " " + resultado.Mensaje });
         }
+
+        /// <summary>
+        /// Metodo para validar un usuario y su estado
+        /// </summary>
+        /// <param name="conductor"></param>
+        /// <param name="servidorStreamWriter"></param>
         private void ValidarUsuario(Conductor conductor, ref StreamWriter servidorStreamWriter)
         {
             MensajeSocket<bool> resultado = new MensajeSocket<bool>();
@@ -359,26 +404,16 @@ namespace ServerTcp
             }
             servidorStreamWriter.WriteLine(JsonConvert.SerializeObject(resultado));
             servidorStreamWriter.Flush();
-            //txtStatus.Invoke(modificartxtStatus, new object[] { "Ingreso de Conductor: " + conductor.UserName });
-            //txtStatus.Invoke(modificartxtStatus, new object[] { "  " + resultado.Mensaje });
         }
-        private bool DatosValidarUsuario(Conductor conductor)
-        {
-            bool resultadoValor = false;
-            string resultadoLogin = datalayer.UsuarioAcceso(conductor);
-            if(resultadoLogin == "OKUsuarioAcceso")
-            {
-                resultadoValor = true;
-            }
-            return resultadoValor;
-        }
+
+        /// <summary>
+        /// Metodo para dejeter el servidor TCP
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnDetenerServidor_Click(object sender, EventArgs e)
         {
             continuar = false;
-            //txtStatus.Text = string.Empty;
-            txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->Desconectando el servidor, desconectando los clientes.";
-            txtStatus.SelectionStart = txtStatus.Text.Length;
-            txtStatus.ScrollToCaret();
 
             try
             {
@@ -390,28 +425,29 @@ namespace ServerTcp
                 tcpListener.Stop();
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Swallow the exception
-                //_statusTextBox.InvokeEx(stb => stb.Text += CRLF + "Problem stopping the server, or client connections forcibly closed...");
-                //_statusTextBox.InvokeEx(stb => stb.Text += CRLF + ex.ToString());
+                txtStatus.Invoke(modificartxtStatus, new object[] { "Problem starting server." });
+                txtStatus.Invoke(modificartxtStatus, new object[] { ex.ToString() });
             }
 
+            txtStatus.Invoke(modificartxtStatus, new object[] { "Desconectando el servidor, desconectando los clientes." });
             btnIniciarServidor.Enabled = true;
             btnDetenerServidor.Enabled = false;
             btnCliente.Enabled = false;
             btnEnviarMensajeGrupal.Enabled = false;
-            //txtStatus.Text = string.Empty;
-            
         }
 
+        /// <summary>
+        /// Metodo para enviar el mensaje tipo broadcast
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnEnviarMensajeGrupal_Click(object sender, EventArgs e)
         {
             try
             {
-                txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> Enviando mensaje a clientes: "+ txtEnviarMensaje.Text;
-                txtStatus.SelectionStart = txtStatus.Text.Length;
-                txtStatus.ScrollToCaret();
+                txtStatus.Invoke(modificartxtStatus, new object[] { "Enviando mensaje a clientes: " + txtEnviarMensaje.Text });
 
                 try
                 {
@@ -441,19 +477,22 @@ namespace ServerTcp
                         //writer.Flush();
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                 }
             }
             catch (Exception ex)
             {
-                txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->Problemas enviando mensaje a los clientes";
-                txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->" + ex.ToString();
-                txtStatus.SelectionStart = txtStatus.Text.Length;
-                txtStatus.ScrollToCaret();
+                txtStatus.Invoke(modificartxtStatus, new object[] { "Problemas enviando mensaje a los clientes" });
+                txtStatus.Invoke(modificartxtStatus, new object[] { ex.ToString() });
             }
         }
 
+        /// <summary>
+        /// Metodo para abrir un nuevo form de cliente
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnCliente_Click(object sender, EventArgs e)
         {
             try
@@ -463,24 +502,18 @@ namespace ServerTcp
             }
             catch (IOException iex) 
             {
-                txtStatus.Text += DateTime.Now.ToString("T") + "->Problemas de comunicación";
-                txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->" + iex.ToString();
-                txtStatus.SelectionStart = txtStatus.Text.Length;
-                txtStatus.ScrollToCaret();
+                txtStatus.Invoke(modificartxtStatus, new object[] { "Problemas de comunicación" });
+                txtStatus.Invoke(modificartxtStatus, new object[] { iex.ToString() });
             }
             catch (ThreadAbortException tex) 
             {
-                txtStatus.Text += DateTime.Now.ToString("T") + "->Problemas con threads";
-                txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->" + tex.ToString();
-                txtStatus.SelectionStart = txtStatus.Text.Length;
-                txtStatus.ScrollToCaret();
+                txtStatus.Invoke(modificartxtStatus, new object[] { "Problemas de comunicación" });
+                txtStatus.Invoke(modificartxtStatus, new object[] { tex.ToString() });
             }
             catch (Exception ex) 
             {
-                txtStatus.Text += DateTime.Now.ToString("T") + "->Error:";
-                txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->" + ex.ToString();
-                txtStatus.SelectionStart = txtStatus.Text.Length;
-                txtStatus.ScrollToCaret();
+                txtStatus.Invoke(modificartxtStatus, new object[] { "Problemas de comunicación" });
+                txtStatus.Invoke(modificartxtStatus, new object[] { ex.ToString() });
             }
         }
 
@@ -491,6 +524,11 @@ namespace ServerTcp
             Application.Exit();
         }
 
+        /// <summary>
+        /// Metodo para cargar todos los conductores al grid
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnCargarConductor_Click(object sender, EventArgs e)
         {
             try
@@ -500,13 +538,16 @@ namespace ServerTcp
             }
             catch (Exception ex)
             {
-                txtStatus.Text += DateTime.Now.ToString("T") + "->Error:";
-                txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->" + ex.ToString();
-                txtStatus.SelectionStart = txtStatus.Text.Length;
-                txtStatus.ScrollToCaret();
+                txtStatus.Invoke(modificartxtStatus, new object[] { "Error:" });
+                txtStatus.Invoke(modificartxtStatus, new object[] { ex.ToString() });
             }
         }
 
+        /// <summary>
+        /// Metodo para habilitar el acceso del conductor
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnValidarConductor_Click(object sender, EventArgs e)
         {
             try
@@ -519,21 +560,23 @@ namespace ServerTcp
                     selectedIdentificacion = Convert.ToString(selectedRow.Cells["Identificacion"].Value);
 
                     datalayer.ValidarConductor(selectedIdentificacion, "CONDUCTOR");
-                    txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->Conductor: "+ Convert.ToString(selectedRow.Cells["Identificacion"].Value)+" validado.";
-                    txtStatus.SelectionStart = txtStatus.Text.Length;
-                    txtStatus.ScrollToCaret();
+                    txtStatus.Invoke(modificartxtStatus, new object[] { "Conductor: " + Convert.ToString(selectedRow.Cells["Identificacion"].Value) + " validado." });
+                    
                     btnCargarConductor_Click(sender, e);
                 }
             }
             catch (Exception ex)
             {
-                txtStatus.Text += DateTime.Now.ToString("T") + "->Error:";
-                txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->" + ex.ToString();
-                txtStatus.SelectionStart = txtStatus.Text.Length;
-                txtStatus.ScrollToCaret();
+                txtStatus.Invoke(modificartxtStatus, new object[] { "Error:" });
+                txtStatus.Invoke(modificartxtStatus, new object[] { ex.ToString() });
             }
         }
 
+        /// <summary>
+        /// Metodo para denegar el acceso al conductor
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnDenegarConductor_Click(object sender, EventArgs e)
         {
             try
@@ -544,9 +587,8 @@ namespace ServerTcp
                     int selectedrowindex = gvConductores.SelectedCells[0].RowIndex;
                     DataGridViewRow selectedRow = gvConductores.Rows[selectedrowindex];
                     selectedIdentificacion = Convert.ToString(selectedRow.Cells["Identificacion"].Value);
-                    txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->Conductor: " + Convert.ToString(selectedRow.Cells["Identificacion"].Value) + " denegado.";
-                    txtStatus.SelectionStart = txtStatus.Text.Length;
-                    txtStatus.ScrollToCaret();
+
+                    txtStatus.Invoke(modificartxtStatus, new object[] { "Conductor: " + Convert.ToString(selectedRow.Cells["Identificacion"].Value) + " denegado." });
 
                     datalayer.ValidarConductor(selectedIdentificacion, "DENEGADO");
                     btnCargarConductor_Click(sender, e);
@@ -554,10 +596,8 @@ namespace ServerTcp
             }
             catch (Exception ex)
             {
-                txtStatus.Text += DateTime.Now.ToString("T") + "->Error:";
-                txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->" + ex.ToString();
-                txtStatus.SelectionStart = txtStatus.Text.Length;
-                txtStatus.ScrollToCaret();
+                txtStatus.Invoke(modificartxtStatus, new object[] { "Error:" });
+                txtStatus.Invoke(modificartxtStatus, new object[] { ex.ToString() });
             }
         }
 
@@ -566,6 +606,11 @@ namespace ServerTcp
             Environment.Exit(0);
         }
 
+        /// <summary>
+        /// Metodo para mostrar todos los viajes 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnViajesTodos_Click(object sender, EventArgs e)
         {
             try
@@ -575,13 +620,16 @@ namespace ServerTcp
             }
             catch (Exception ex)
             {
-                txtStatus.Text += DateTime.Now.ToString("T") + "->Error:";
-                txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->" + ex.ToString();
-                txtStatus.SelectionStart = txtStatus.Text.Length;
-                txtStatus.ScrollToCaret();
+                txtStatus.Invoke(modificartxtStatus, new object[] { "Error:" });
+                txtStatus.Invoke(modificartxtStatus, new object[] { ex.ToString() });
             }
         }
 
+        /// <summary>
+        /// Metodo para mostrar todos los viajes activos 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnViajesActivos_Click(object sender, EventArgs e)
         {
             try
@@ -591,13 +639,16 @@ namespace ServerTcp
             }
             catch (Exception ex)
             {
-                txtStatus.Text += DateTime.Now.ToString("T") + "->Error:";
-                txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->" + ex.ToString();
-                txtStatus.SelectionStart = txtStatus.Text.Length;
-                txtStatus.ScrollToCaret();
+                txtStatus.Invoke(modificartxtStatus, new object[] { "Error:" });
+                txtStatus.Invoke(modificartxtStatus, new object[] { ex.ToString() });
             }
         }
 
+        /// <summary>
+        /// Metodo para mostrar los tracking del viaje seleccionado
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void gvViajes_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             try
@@ -616,10 +667,8 @@ namespace ServerTcp
             }
             catch (Exception ex)
             {
-                txtStatus.Text += DateTime.Now.ToString("T") + "->Error:";
-                txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->" + ex.ToString();
-                txtStatus.SelectionStart = txtStatus.Text.Length;
-                txtStatus.ScrollToCaret();
+                txtStatus.Invoke(modificartxtStatus, new object[] { "Error:" });
+                txtStatus.Invoke(modificartxtStatus, new object[] { ex.ToString() });
             }
         }
     }

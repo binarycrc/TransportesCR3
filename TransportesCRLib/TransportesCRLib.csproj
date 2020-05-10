@@ -41,7 +41,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Broadcast.cs" />
     <Compile Include="Camion.cs" />
     <Compile Include="Conductor.cs" />
     <Compile Include="DataLayer.cs" />

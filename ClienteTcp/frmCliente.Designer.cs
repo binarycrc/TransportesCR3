@@ -67,6 +67,8 @@
             this.btnIngresoViaje = new System.Windows.Forms.Button();
             this.tabViajes = new System.Windows.Forms.TabPage();
             this.gbViajePendiente = new System.Windows.Forms.GroupBox();
+            this.btnEnviarMensaje = new System.Windows.Forms.Button();
+            this.txtEnviarMensaje = new System.Windows.Forms.TextBox();
             this.lblGUIDActivo = new System.Windows.Forms.Label();
             this.btnFinalizarViaje = new System.Windows.Forms.Button();
             this.txtObservaciones = new System.Windows.Forms.TextBox();
@@ -75,15 +77,12 @@
             this.txtNuevaUbicacion = new System.Windows.Forms.TextBox();
             this.label16 = new System.Windows.Forms.Label();
             this.btnActualizarViaje = new System.Windows.Forms.Button();
-            this.lblMensaje = new System.Windows.Forms.Label();
             this.btnSalir = new System.Windows.Forms.Button();
             this.txtStatus = new System.Windows.Forms.TextBox();
             this.btnConectarCliente = new System.Windows.Forms.Button();
             this.tabTrash = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.txtEnviarMensaje = new System.Windows.Forms.TextBox();
-            this.btnEnviarMensaje = new System.Windows.Forms.Button();
             this.tabMain.SuspendLayout();
             this.tabIngreso.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -617,6 +616,24 @@
             this.gbViajePendiente.TabIndex = 2;
             this.gbViajePendiente.TabStop = false;
             // 
+            // btnEnviarMensaje
+            // 
+            this.btnEnviarMensaje.Location = new System.Drawing.Point(384, 160);
+            this.btnEnviarMensaje.Name = "btnEnviarMensaje";
+            this.btnEnviarMensaje.Size = new System.Drawing.Size(106, 32);
+            this.btnEnviarMensaje.TabIndex = 13;
+            this.btnEnviarMensaje.Text = "Enviar Notificacion";
+            this.btnEnviarMensaje.UseVisualStyleBackColor = true;
+            this.btnEnviarMensaje.Click += new System.EventHandler(this.btnEnviarMensaje_Click);
+            // 
+            // txtEnviarMensaje
+            // 
+            this.txtEnviarMensaje.Location = new System.Drawing.Point(6, 116);
+            this.txtEnviarMensaje.Multiline = true;
+            this.txtEnviarMensaje.Name = "txtEnviarMensaje";
+            this.txtEnviarMensaje.Size = new System.Drawing.Size(365, 76);
+            this.txtEnviarMensaje.TabIndex = 12;
+            // 
             // lblGUIDActivo
             // 
             this.lblGUIDActivo.AutoSize = true;
@@ -689,16 +706,6 @@
             this.btnActualizarViaje.UseVisualStyleBackColor = true;
             this.btnActualizarViaje.Click += new System.EventHandler(this.btnActualizarViaje_Click);
             // 
-            // lblMensaje
-            // 
-            this.lblMensaje.AutoSize = true;
-            this.lblMensaje.ForeColor = System.Drawing.Color.Red;
-            this.lblMensaje.Location = new System.Drawing.Point(19, 242);
-            this.lblMensaje.Name = "lblMensaje";
-            this.lblMensaje.Size = new System.Drawing.Size(35, 13);
-            this.lblMensaje.TabIndex = 19;
-            this.lblMensaje.Text = "label8";
-            // 
             // btnSalir
             // 
             this.btnSalir.Location = new System.Drawing.Point(450, 237);
@@ -759,24 +766,6 @@
             this.tabPage2.Text = "tabPage2";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
-            // txtEnviarMensaje
-            // 
-            this.txtEnviarMensaje.Location = new System.Drawing.Point(6, 116);
-            this.txtEnviarMensaje.Multiline = true;
-            this.txtEnviarMensaje.Name = "txtEnviarMensaje";
-            this.txtEnviarMensaje.Size = new System.Drawing.Size(365, 76);
-            this.txtEnviarMensaje.TabIndex = 12;
-            // 
-            // btnEnviarMensaje
-            // 
-            this.btnEnviarMensaje.Location = new System.Drawing.Point(384, 160);
-            this.btnEnviarMensaje.Name = "btnEnviarMensaje";
-            this.btnEnviarMensaje.Size = new System.Drawing.Size(106, 32);
-            this.btnEnviarMensaje.TabIndex = 13;
-            this.btnEnviarMensaje.Text = "Enviar Notificacion";
-            this.btnEnviarMensaje.UseVisualStyleBackColor = true;
-            this.btnEnviarMensaje.Click += new System.EventHandler(this.btnEnviarMensaje_Click);
-            // 
             // frmCliente
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -785,7 +774,6 @@
             this.Controls.Add(this.btnConectarCliente);
             this.Controls.Add(this.txtStatus);
             this.Controls.Add(this.btnSalir);
-            this.Controls.Add(this.lblMensaje);
             this.Controls.Add(this.tabMain);
             this.Controls.Add(this.tabTrash);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -825,7 +813,6 @@
         private System.Windows.Forms.TextBox txtUsuario;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TabPage tabRegistroConductor;
-        private System.Windows.Forms.Label lblMensaje;
         private System.Windows.Forms.Button btnSalir;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.TextBox txtIdentificacion;

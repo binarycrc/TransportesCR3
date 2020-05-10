@@ -25,37 +25,20 @@ namespace ClienteTcp
         private static StreamWriter clienteStreamWriter;
         private static StreamReader clienteStreamReader;
 
-        //TcpListener tcpListener;
-        //Thread n_client;
-        //private Socket socket;
-        //byte[] bufferReceive = new byte[4096];
-        //byte[] bufferSend = new byte[4096];
-
         private TcpClient cliente;
-        //private BinaryWriter escritor;
-        //private BinaryReader lector;
-        //private BinaryFormatter bf;
 
-        ModificartxtStatusDelegado modificartxtStatus;
-        ModificarlblClientesConectadosDelegado modificarlblClientesConectados;
         private delegate void ModificartxtStatusDelegado(string mensaje);
-        private delegate void ModificarlblClientesConectadosDelegado(string mensaje);
-
-        // lblClientesConectados.Invoke(modificarlblClientesConectados, new object[] { "Clientes conectados: " + cuentaClientes.ToString()});
-        // txtStatus.Invoke(modificartxtStatus, new object[] { "->Nuevo cliente conectado " });
+        ModificartxtStatusDelegado modificartxtStatus;
 
         public frmCliente()
         {
             InitializeComponent();
             clienteConectado = false;
-            tabIngreso.Parent = tabMain; //show
-            tabRegistroConductor.Parent = tabTrash; // hide    
-            //tabRegistroConductor.Parent = tabMain; //show
-            tabIngresoViajes.Parent = tabTrash; // hide    
-            //tabIngresoViajes.Parent = tabMain; //show
-            tabViajes.Parent = tabTrash; // hide    
-            //tabViajes.Parent = tabMain; //show
-            //timerCliente.Start();
+            tabIngreso.Parent = tabMain; 
+            tabRegistroConductor.Parent = tabTrash; 
+            tabIngresoViajes.Parent = tabTrash; 
+            tabViajes.Parent = tabTrash; 
+            modificartxtStatus = new ModificartxtStatusDelegado(ModificartxtStatus);
         }
 
         private void ModificartxtStatus(string mensaje)
@@ -64,10 +47,7 @@ namespace ClienteTcp
             txtStatus.SelectionStart = txtStatus.Text.Length;
             txtStatus.ScrollToCaret();
         }
-        private void ModificarlblClientesConectados(string mensaje)
-        {
-            
-        }
+        
         private void btnIngresar_Click(object sender, EventArgs e)
         {
             try
@@ -87,37 +67,32 @@ namespace ClienteTcp
 
                     if (resultado.Valor)
                     {
-                        txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> Ingreso de Conductor: " + txtUsuario.Text;
-                        txtStatus.SelectionStart = txtStatus.Text.Length;
-                        txtStatus.ScrollToCaret();
+                        modificartxtStatus("Ingreso de Conductor: " + txtUsuario.Text);
 
                         CargarViajeActivo(conductor);
-
                     }
                     else
                     {
-                        txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> Ingreso de Conductor: " + txtUsuario.Text;
-                        txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> " + resultado.Mensaje;
-                        txtStatus.SelectionStart = txtStatus.Text.Length;
-                        txtStatus.ScrollToCaret();
+                        modificartxtStatus("Ingreso de Conductor: " + txtUsuario.Text);
+                        modificartxtStatus(resultado.Mensaje);
                     }
-                }
-
-                
+                }                
             }
             catch (IOException iex) {
-                lblMensaje.Text = iex.Message;
+                modificartxtStatus("Problema ingreando usuario.");
+                modificartxtStatus(iex.ToString());
                 clienteConectado = false;
             }
             catch (SocketException sex)
             {
-                lblMensaje.Text = sex.Message;
+                modificartxtStatus("Problema ingreando usuario.");
+                modificartxtStatus(sex.ToString());
                 clienteConectado = false;
             }
             catch (Exception ex)
             {
-                lblMensaje.Text = ex.Message;
-                clienteConectado = false;
+                modificartxtStatus("Problema ingreando usuario.");
+                modificartxtStatus(ex.ToString());
             }
         }
 
@@ -145,10 +120,10 @@ namespace ClienteTcp
                     tabIngreso.Parent = tabTrash;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                modificartxtStatus("Problema cargar viaje activo.");
+                modificartxtStatus(ex.ToString());
             }
         }
         private void btnSalir_Click(object sender, EventArgs e)
@@ -168,10 +143,10 @@ namespace ClienteTcp
                                 
                 this.Close();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                //throw;
+                modificartxtStatus("Problema al salir.");
+                modificartxtStatus(ex.ToString());
             }
 
         }
@@ -200,17 +175,18 @@ namespace ClienteTcp
             }
             catch (SocketException sex)
             {
-                lblMensaje.Text = sex.Message;
+                modificartxtStatus("Error:");
+                modificartxtStatus(sex.ToString());
                 clienteConectado = false;
             }
             catch (Exception ex)
             {
-                lblMensaje.Text = ex.Message;
+                modificartxtStatus("Error:");
+                modificartxtStatus(ex.ToString());
             }
         }
         private void btnRegistroConductor_Click(object sender, EventArgs e)
         {
-            string test = "";
             try
             {
                 if (!string.IsNullOrEmpty(txtIdentificacion.Text.Trim()) || !string.IsNullOrWhiteSpace(txtIdentificacion.Text.Trim()) ||
@@ -238,45 +214,34 @@ namespace ClienteTcp
 
                     if (resultado.Valor)
                     {
-                        txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> Registro de Conductor: " + txtIdentificacion.Text;
-                        txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> Registro de Usuario: " + txtUserName.Text;
-                        txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> Registro de Camion: " + txtPlaca.Text;
-                        txtStatus.SelectionStart = txtStatus.Text.Length;
-                        txtStatus.ScrollToCaret();
+                        modificartxtStatus("Registro de Conductor: " + txtIdentificacion.Text);
+                        modificartxtStatus("Registro de Usuario: " + txtUserName.Text);
+                        modificartxtStatus("Registro de Camion: " + txtPlaca.Text);
 
                         tabIngreso.Parent = tabMain;
-                        
                         tabRegistroConductor.Parent = tabTrash;
                     }
                     else
                     {
-                        txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> Registro de Conductor: " + txtUsuario.Text;
-                        txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> " + resultado.Mensaje;
-                        txtStatus.SelectionStart = txtStatus.Text.Length;
-                        txtStatus.ScrollToCaret();
+                        modificartxtStatus("Registro de Conductor: " + txtIdentificacion.Text);
+                        modificartxtStatus(resultado.Mensaje);
                     }
-
-
                 }
                 else
                 {
-                    txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> Verifique los datos, todos los campos son obligatorios.";
-                    txtStatus.SelectionStart = txtStatus.Text.Length;
-                    txtStatus.ScrollToCaret();
+                    modificartxtStatus("Verifique los datos, todos los campos son obligatorios.");
                 }
             }
             catch (SocketException sex)
             {
-                txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> Error: "+ sex.Message;
-                txtStatus.SelectionStart = txtStatus.Text.Length;
-                txtStatus.ScrollToCaret();
+                modificartxtStatus("Problema registro de conductor.");
+                modificartxtStatus(sex.ToString());
                 clienteConectado = false;
             }
             catch (Exception ex)
             {
-                txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> Error: " + ex.Message;
-                txtStatus.SelectionStart = txtStatus.Text.Length;
-                txtStatus.ScrollToCaret();
+                modificartxtStatus("Problema registro del conductor.");
+                modificartxtStatus(ex.ToString());
             }
         }
         private void btnIngresoViaje_Click(object sender, EventArgs e)
@@ -311,51 +276,32 @@ namespace ClienteTcp
                     {
                         //lblGUIDActivo.Invoke(new MethodInvoker(delegate {lblGUIDActivo.Text = idviaje;}));
                         lblGUIDActivo.Text = idviaje;
-                        txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> Registro de Viaje: " + txtIdentificacion.Text;
-                        txtStatus.SelectionStart = txtStatus.Text.Length;
-                        txtStatus.ScrollToCaret();
+                        
+                        modificartxtStatus("Registro de Viaje: " + txtIdentificacion.Text);
 
                         tabViajes.Parent = tabMain;
                         tabIngresoViajes.Parent = tabTrash;
-                        //tabIngresoViajes.Invoke(new MethodInvoker(delegate {
-                        //    tabIngresoViajes.Parent = tabMain;
-                        //}));
-
-                        //tabIngreso.Invoke(new MethodInvoker(delegate {
-                        //    tabIngreso.Parent = tabTrash;
-                        //}));
                     }
                     else
                     {
-                        txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> Registro de Conductor: " + txtUsuario.Text;
-                        txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> " + resultado.Mensaje;
-                        txtStatus.SelectionStart = txtStatus.Text.Length;
-                        txtStatus.ScrollToCaret();
+                        modificartxtStatus("Registro de Conductor: " + txtUsuario.Text);
                     }
-
-
                 }
                 else
                 {
-                    txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> Verifique los datos, todos los campos son obligatorios.";
-                    txtStatus.SelectionStart = txtStatus.Text.Length;
-                    txtStatus.ScrollToCaret();
+                    modificartxtStatus("Verifique los datos, todos los campos son obligatorios.");
                 }
-
-
             }
             catch (SocketException sex)
             {
-                txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> Error: " + sex.Message;
-                txtStatus.SelectionStart = txtStatus.Text.Length;
-                txtStatus.ScrollToCaret();
+                modificartxtStatus("Error: ");
+                modificartxtStatus(sex.ToString());
                 clienteConectado = false;
             }
             catch (Exception ex)
             {
-                txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> Error: " + ex.Message;
-                txtStatus.SelectionStart = txtStatus.Text.Length;
-                txtStatus.ScrollToCaret();
+                modificartxtStatus("Error: ");
+                modificartxtStatus(ex.ToString());
             }
         }
         private void btnConectarCliente_Click(object sender, EventArgs e)
@@ -375,287 +321,22 @@ namespace ClienteTcp
                 string mensaje = clienteStreamReader.ReadLine();
                 MensajeSocket<bool> resultado;
                 resultado = JsonConvert.DeserializeObject<MensajeSocket<bool>>(mensaje);
-                txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> " + resultado.Mensaje;
-                txtStatus.SelectionStart = txtStatus.Text.Length;
-                txtStatus.ScrollToCaret();
+                modificartxtStatus(resultado.Mensaje);
 
                 clienteConectado = true;
                 btnConectarCliente.Enabled = false;
                 btnIngresar.Enabled = true;
                 linkRegistrarse.Enabled = true;
                 btnRegistroConductor.Enabled = true;
-
-                //n_client = new Thread(new ThreadStart(EscuchaBroadcast));
-                //n_client.IsBackground = true;
-                //n_client.Start();
-
             }
             catch (Exception ex)
             {
-                txtStatus.Text += "\r\n" + "Problemas conectando el servidor.";
-                txtStatus.Text += "\r\n" + ex.ToString();
+                modificartxtStatus("Problemas conectando el servidor.");
+                modificartxtStatus(ex.ToString());
             }
         }
-        //private void EscuchaBroadcast() 
-        //{
-
-        //    tcpListener = new TcpListener(IPAddress.Any, 16831);
-        //    tcpListener.Start();
-        //    try
-        //    {
-        //        socket = tcpListener.AcceptSocket();
-        //        if (socket.Connected)
-        //        {
-        //            //textBox3.Invoke((MethodInvoker)delegate { textBox3.Text = "Client        : " + socket.RemoteEndPoint.ToString(); });
-        //        }
-        //        while (true)
-        //        {
-        //            int length = socket.Receive(bufferReceive);
-        //            if (length > 0)
-        //            {
-        //                txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> " + Encoding.Unicode.GetString(bufferReceive);
-        //                txtStatus.SelectionStart = txtStatus.Text.Length;
-        //                txtStatus.ScrollToCaret();
-        //            }
-        //        }
-        //    }
-        //    catch
-        //    {
-        //    }
-        //}
+       
     
-        private void EscuchaClientes(object cliente)
-        {
-            //TcpClient client = (TcpClient)cliente;
-            //string input = string.Empty;
-
-            //NetworkStream clienteStream = client.GetStream();
-            //escritor = new BinaryWriter(clienteStream);
-            //lector = new BinaryReader(clienteStream);
-            //BinaryFormatter bf = new BinaryFormatter();
-            ////clienteStream.Flush();
-
-            //String accion = string.Empty;
-
-            //try
-            //{
-            //    escritor.Write("Nuevo Cliente");
-            //    escritor.Flush();
-
-            //    while (client.Connected)
-            //    {
-            //        //input = reader.ReadLine(); // block here until we receive something from the server.
-            //        accion = lector.ReadString();
-            //        //if (input == null)
-            //        if (accion == null)
-            //        {
-            //            Desconectardesdeservidor();
-            //        }
-            //        else
-            //        {
-            //            switch (accion)
-            //            {
-            //                case "OKUsuarioAcceso":
-            //                    txtStatus.Invoke(new MethodInvoker(delegate {
-            //                        txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->" + accion;
-            //                        txtStatus.SelectionStart = txtStatus.Text.Length;
-            //                        txtStatus.ScrollToCaret();
-            //                    }));
-            //                    tabIngresoViajes.Invoke(new MethodInvoker(delegate {
-            //                        tabIngresoViajes.Parent = tabMain;
-            //                    }));
-
-            //                    tabIngreso.Invoke(new MethodInvoker(delegate {
-            //                        tabIngreso.Parent = tabTrash;
-            //                    }));
-            //                    break;
-            //                case "DenegadoUsuarioAcceso":
-            //                    txtStatus.Invoke(new MethodInvoker(delegate {
-            //                        txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->" + accion;
-            //                        txtStatus.SelectionStart = txtStatus.Text.Length;
-            //                        txtStatus.ScrollToCaret();
-            //                    }));
-            //                    MessageBox.Show("El conductor no existe o tiene el acceso denegado!");
-            //                    break;
-            //                case "OKConductor":
-            //                    tabIngreso.Invoke(new MethodInvoker(delegate {
-            //                        tabIngreso.Parent = tabMain;
-            //                    }));
-            //                    tabRegistroConductor.Invoke(new MethodInvoker(delegate {
-            //                        tabRegistroConductor.Parent = tabTrash;
-            //                    }));
-            //                    txtStatus.Invoke(new MethodInvoker(delegate {
-            //                        txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->" + accion;
-            //                        txtStatus.SelectionStart = txtStatus.Text.Length;
-            //                        txtStatus.ScrollToCaret();
-            //                    }));
-            //                    MessageBox.Show("Conductor y camion creados!");
-            //                    break;
-
-            //                case "ExistenteConductor":
-            //                    txtStatus.Invoke(new MethodInvoker(delegate {
-            //                        txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->" + accion;
-            //                        txtStatus.SelectionStart = txtStatus.Text.Length;
-            //                        txtStatus.ScrollToCaret();
-            //                    }));
-            //                    MessageBox.Show("El conductor con la identificacion " + txtIdentificacion.Text + ", ya existe!");
-            //                    break;
-
-            //                case "ExistenteUsuario":
-            //                    txtStatus.Invoke(new MethodInvoker(delegate {
-            //                        txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->" + accion;
-            //                        txtStatus.SelectionStart = txtStatus.Text.Length;
-            //                        txtStatus.ScrollToCaret();
-            //                    }));
-            //                    MessageBox.Show("El conductor con el Usuario " + txtUsuario.Text + ", ya existe!");
-            //                    break;
-            //                case "ExistenteCamion":
-            //                    txtStatus.Invoke(new MethodInvoker(delegate {
-            //                        txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->" + accion;
-            //                        txtStatus.SelectionStart = txtStatus.Text.Length;
-            //                        txtStatus.ScrollToCaret();
-            //                    }));
-            //                    MessageBox.Show("El camion con la placa " + txtPlaca.Text + ", ya existe!");
-            //                    break;
-            //                case "OKViaje":
-            //                    txtStatus.Invoke(new MethodInvoker(delegate {
-            //                        txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->" + accion;
-            //                        txtStatus.SelectionStart = txtStatus.Text.Length;
-            //                        txtStatus.ScrollToCaret();
-            //                    }));
-            //                    tabIngresoViajes.Invoke(new MethodInvoker(delegate {
-            //                        tabIngresoViajes.Parent = tabTrash;
-            //                    }));
-
-            //                    tabViajes.Invoke(new MethodInvoker(delegate {
-            //                        tabViajes.Parent = tabMain;
-            //                    }));
-            //                    break;
-            //                case "TieneViajeActivo":
-            //                    txtStatus.Invoke(new MethodInvoker(delegate {
-            //                        txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->" + accion;
-            //                        txtStatus.SelectionStart = txtStatus.Text.Length;
-            //                        txtStatus.ScrollToCaret();
-            //                    }));
-            //                    MessageBox.Show("El conductor: " + txtUsuario.Text + ", ya tiene un viaje acitvo.");
-            //                    break;
-            //                case "OKViajeActualizacion":
-            //                    txtStatus.Invoke(new MethodInvoker(delegate {
-            //                        txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->" + accion;
-            //                        txtStatus.SelectionStart = txtStatus.Text.Length;
-            //                        txtStatus.ScrollToCaret();
-            //                    }));
-            //                    break;
-            //                case "OKViajeFinalizado":
-            //                    txtStatus.Invoke(new MethodInvoker(delegate {
-            //                        txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->" + accion;
-            //                        txtStatus.SelectionStart = txtStatus.Text.Length;
-            //                        txtStatus.ScrollToCaret();
-            //                    }));
-            //                    break;
-            //                case "ConductorActivo":
-            //                    Conductor conductorActivo = (Conductor)(bf.Deserialize(clienteStream));
-            //                    Viaje viajeActivo = (Viaje)(bf.Deserialize(clienteStream));
-            //                    txtIdentificacion.Invoke(new MethodInvoker(delegate {
-            //                        txtIdentificacion.Text = conductorActivo.Identificacion;
-            //                    }));
-            //                    txtNombre.Invoke(new MethodInvoker(delegate {
-            //                        txtNombre.Text = conductorActivo.Nombre;
-            //                    }));
-            //                    txtPApellido.Invoke(new MethodInvoker(delegate {
-            //                        txtPApellido.Text = conductorActivo.PApellido;
-            //                    }));
-            //                    txtSApellido.Invoke(new MethodInvoker(delegate {
-            //                        txtSApellido.Text = conductorActivo.SApellido;
-            //                    }));
-            //                    txtUserName.Invoke(new MethodInvoker(delegate {
-            //                        txtUserName.Text = conductorActivo.UserName;
-            //                    }));
-
-            //                    lblGUIDActivo.Invoke(new MethodInvoker(delegate {
-            //                        lblGUIDActivo.Text = viajeActivo.Id_viaje;
-            //                    }));
-
-            //                    txtStatus.Invoke(new MethodInvoker(delegate {
-            //                        txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->" + accion;
-            //                        txtStatus.SelectionStart = txtStatus.Text.Length;
-            //                        txtStatus.ScrollToCaret();
-            //                    }));
-            //                    tabIngreso.Invoke(new MethodInvoker(delegate {
-            //                        tabIngreso.Parent = tabTrash;
-            //                    }));
-            //                    tabViajes.Invoke(new MethodInvoker(delegate {
-            //                        tabViajes.Parent = tabMain;
-            //                    }));
-            //                    break;
-            //                default:
-            //                    {
-            //                        txtStatus.Invoke(new MethodInvoker(delegate {
-            //                            txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "->"+ accion;
-            //                            txtStatus.SelectionStart = txtStatus.Text.Length;
-            //                            txtStatus.ScrollToCaret();
-            //                        }));
-            //                        break;
-            //                    }
-            //            } // end switch
-            //        } // end if/else
-
-
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    if (client.Connected) 
-            //    {
-            //        txtStatus.Invoke(new MethodInvoker(delegate {
-            //            txtStatus.Text += "\r\n" + "Problemas de comunicacion con el servidor";
-            //            txtStatus.Text += "\r\n" + ex.Message;
-            //        }));
-            //    }
-            //}
-            //if (client.Connected)
-            //{
-            //    btnConectarCliente.Invoke(new MethodInvoker(delegate
-            //    {
-            //        btnConectarCliente.Enabled = true;
-            //    }));
-            //    txtStatus.Invoke(new MethodInvoker(delegate
-            //    {
-            //        txtStatus.Text += "\r\n" + string.Empty;
-            //    }));
-            //}
-        }
-
-        private void Desconectardesdeservidor()
-        {
-            try
-            {
-                cliente.Close();
-                txtStatus.Invoke(new MethodInvoker(delegate {
-                    txtStatus.Text += "\r\n" + "Desconectado desde el servidor";
-                }));
-                btnConectarCliente.Invoke(new MethodInvoker(delegate {
-                    btnConectarCliente.Enabled = true;
-                }));
-                txtStatus.Invoke(new MethodInvoker(delegate {
-                    txtStatus.Text += "\r\n" + string.Empty;
-                }));
-            }
-            catch (Exception ex)
-            {
-                txtStatus.Invoke(new MethodInvoker(delegate {
-                    txtStatus.Text += "\r\n" + "Problemas desconectando el servidor";
-                    txtStatus.Text += "\r\n" + ex.Message;
-                }));
-                txtStatus.Invoke(new MethodInvoker(delegate {
-                    txtStatus.Text += "\r\n" + string.Empty;
-                }));
-            }
-            txtStatus.Invoke(new MethodInvoker(delegate {
-                txtStatus.Text += "\r\n" + string.Empty;
-            }));
-        }
-
         private void btnActualizarViaje_Click(object sender, EventArgs e)
         {
             try
@@ -677,53 +358,30 @@ namespace ClienteTcp
 
                     if (resultado.Valor)
                     {
-                        //lblGUIDActivo.Invoke(new MethodInvoker(delegate {lblGUIDActivo.Text = idviaje;}));
-                        txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> Registro de Tracking: " + lblGUIDActivo.Text.Trim();
-                        txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> " + txtNuevaUbicacion.Text.Trim();
-                        txtStatus.SelectionStart = txtStatus.Text.Length;
-                        txtStatus.ScrollToCaret();
-
-                        //tabViajes.Parent = tabMain;
-                        //tabIngresoViajes.Parent = tabTrash;
-                        //tabIngresoViajes.Invoke(new MethodInvoker(delegate {
-                        //    tabIngresoViajes.Parent = tabMain;
-                        //}));
-
-                        //tabIngreso.Invoke(new MethodInvoker(delegate {
-                        //    tabIngreso.Parent = tabTrash;
-                        //}));
+                        modificartxtStatus("Registro de Tracking: " + lblGUIDActivo.Text.Trim());
                     }
                     else
                     {
-                        txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> Registro de Tracking: " + txtUsuario.Text;
-                        txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> " + resultado.Mensaje;
-                        txtStatus.SelectionStart = txtStatus.Text.Length;
-                        txtStatus.ScrollToCaret();
+                        modificartxtStatus("Registro de Tracking: " + txtUsuario.Text);
                     }
-
-
                 }
                 else
                 {
-                    txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> Verifique los datos, todos los campos son obligatorios.";
-                    txtStatus.SelectionStart = txtStatus.Text.Length;
-                    txtStatus.ScrollToCaret();
+                    modificartxtStatus("Verifique los datos, todos los campos son obligatorios.");
                 }
 
 
             }
             catch (SocketException sex)
             {
-                txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> Error: " + sex.Message;
-                txtStatus.SelectionStart = txtStatus.Text.Length;
-                txtStatus.ScrollToCaret();
+                modificartxtStatus("Error");
+                modificartxtStatus(sex.ToString());
                 clienteConectado = false;
             }
             catch (Exception ex)
             {
-                txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> Error: " + ex.Message;
-                txtStatus.SelectionStart = txtStatus.Text.Length;
-                txtStatus.ScrollToCaret();
+                modificartxtStatus("Error");
+                modificartxtStatus(ex.ToString());
             }
         }
 
@@ -751,32 +409,28 @@ namespace ClienteTcp
 
                 if (resultado.Valor)
                 {
-                    //lblGUIDActivo.Invoke(new MethodInvoker(delegate {lblGUIDActivo.Text = idviaje;}));
                     lblGUIDActivo.Text = idviaje;
-                    txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> Finalizar Viaje: " + txtIdentificacion.Text;
-                    txtStatus.SelectionStart = txtStatus.Text.Length;
-                    txtStatus.ScrollToCaret();
+                    modificartxtStatus("Finalizar Viaje: " + txtIdentificacion.Text);
                     
                     tabIngresoViajes.Parent = tabMain;
                     tabViajes.Parent = tabTrash;
                 }
                 else
                 {
-                    txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> Finalizar Viaje: " + txtUsuario.Text;
-                    txtStatus.Text += "\r\n" + DateTime.Now.ToString("T") + "-> " + resultado.Mensaje;
-                    txtStatus.SelectionStart = txtStatus.Text.Length;
-                    txtStatus.ScrollToCaret();
+                    modificartxtStatus("Finalizar Viaje: " + txtUsuario.Text);
+                    modificartxtStatus(resultado.Mensaje);
                 }
 
             }
             catch (SocketException sex)
             {
-                lblMensaje.Text = sex.Message;
-                clienteConectado = false;
+                modificartxtStatus("Error:");
+                modificartxtStatus(sex.ToString());
             }
             catch (Exception ex)
             {
-                lblMensaje.Text = ex.Message;
+                modificartxtStatus("Error:");
+                modificartxtStatus(ex.ToString());
             }
         }
 
@@ -798,10 +452,10 @@ namespace ClienteTcp
                 clienteStreamWriter.WriteLine(JsonConvert.SerializeObject(mensajeNoticacion));
                 clienteStreamWriter.Flush();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                modificartxtStatus("Error:");
+                modificartxtStatus(ex.ToString());
             }
         }
     }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
+using TransportesCR3;
 
 namespace ServerTcp
 {
@@ -15,7 +16,7 @@ namespace ServerTcp
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new frmServidor());
+            Application.Run(new DataInfo());
         }
     }
 }
